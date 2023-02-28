@@ -220,7 +220,7 @@ def main():
     screen = pygame.display.set_mode([screen_width, screen_height])
  
     # Set the title of the window
-    pygame.display.set_caption('Maze Runner')
+    pygame.display.set_caption('Hello Jeff')
  
     # Create the player paddle object
     player = Player(50, 50)
@@ -253,6 +253,7 @@ def main():
 
     start_time = time()
     font = pygame.font.Font(None, 36)
+    leaderboard_font = pygame.font.Font('freesansbold.ttf', 56)
     game_state = "playing"
     mixer.init()
     mixer.music.load('bensound-summer_mp3_music.mp3')
@@ -337,6 +338,11 @@ def main():
 
           # Draw the countdown timer
         if current_room_no == 3:
+            leaderboard_text = leaderboard_font.render("Leaderboard", True, (147, 112, 219))
+            screen.blit(leaderboard_text, [220, 50])
+            score_text = font.render("Time : " + str(f"{remaining_time:02}"), True, (147, 112, 219))
+            screen.blit(score_text, [360, 110])
+
             elapsed_time = elapsed_time
             #         >>------------- TCP settings ------------------<<
             # Set up the TCP client socket
