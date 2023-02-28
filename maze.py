@@ -17,6 +17,11 @@ pygame.init()
 # Create the game window
 window = pygame.display.set_mode((MAZE_WIDTH * CELL_SIZE, MAZE_HEIGHT * CELL_SIZE))
 
+# Title and Icon                             
+pygame.display.set_caption("Jeff") 
+icon = pygame.image.load('trekking.png')    
+pygame.display.set_icon(icon)                
+
 # Create the font object for the counter
 font = pygame.font.SysFont(None, 30)
 

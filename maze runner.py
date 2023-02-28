@@ -12,7 +12,9 @@ RED = (255, 0, 0)
 PURPLE = (255, 0, 255)
 font_size = 30
 
-
+# Icon                              
+icon = pygame.image.load('trekking.png')    
+pygame.display.set_icon(icon) 
 
  
 class Wall(pygame.sprite.Sprite):
@@ -216,7 +218,7 @@ def main():
     screen = pygame.display.set_mode([screen_width, screen_height])
  
     # Set the title of the window
-    pygame.display.set_caption('Maze Runner')
+    pygame.display.set_caption('Hello Jeff')
  
     # Create the player paddle object
     player = Player(50, 50)
