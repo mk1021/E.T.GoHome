@@ -12,9 +12,11 @@ RED = (255, 0, 0)
 PURPLE = (255, 0, 255)
 font_size = 30
 
-# Icon                              
-icon = pygame.image.load('trekking.png')    
-pygame.display.set_icon(icon) 
+# Icon                             
+
+icon = pygame.image.load('trekking.png')   
+
+pygame.display.set_icon(icon)
 
  
 class Wall(pygame.sprite.Sprite):
@@ -218,7 +220,7 @@ def main():
     screen = pygame.display.set_mode([screen_width, screen_height])
  
     # Set the title of the window
-    pygame.display.set_caption('Hello Jeff')
+    pygame.display.set_caption('Maze Runner')
  
     # Create the player paddle object
     player = Player(50, 50)
@@ -333,7 +335,24 @@ def main():
         current_room.wall_list.draw(screen)
 
           # Draw the countdown timer
-        elapsed_time = int(time() - start_time)
+        if current_room_no == 3:
+            elapsed_time = elapsed_time
+            #         >>------------- TCP settings ------------------<<
+            # Set up the TCP client socket
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            #the server name and port client wishes to access
+            print("We're in tcp client...");
+            server_name = '3.10.214.70'
+            server_port = 12000
+            client_socket.connect((server_name, server_port))
+            msg = str(remaining_time)
+            client_socket.send(msg.encode())
+            #return values from the server
+            msg = client_socket.recv(1024)
+            print(msg.decode())
+            client_socket.close()
+        else: 
+         elapsed_time = int(time() - start_time)
         remaining_time = max( elapsed_time, 0)
         countdown_text = font.render("Time Taken: " + str(remaining_time), True, WHITE)
         screen.blit(countdown_text, [screen_width - 250, 20])

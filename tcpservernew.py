@@ -17,5 +17,6 @@ while True:
     cmsg = connection_socket.recv(1024)
     cmsg = cmsg.decode()
     cmsg = CurrentScore.append(cmsg)
+    cmsg = CurrentScore.sort()
     connection_socket.send(str(CurrentScore).encode()) 
 
