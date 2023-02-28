@@ -347,7 +347,7 @@ def main():
              server_name = '13.40.107.12'
              server_port = 12000
              client_socket.connect((server_name, server_port))
-             msg = str(remaining_time)
+             msg = str(f"{remaining_time:02}")
              client_socket.send(msg.encode())
              #return values from the server
              msg = client_socket.recv(1024)
@@ -357,7 +357,7 @@ def main():
         else: 
          elapsed_time = int(time() - start_time)
         remaining_time = max( elapsed_time, 0)
-        countdown_text = font.render("Time Taken: " + str(remaining_time), True, WHITE)
+        countdown_text = font.render("Time Taken: " + str(f"{remaining_time:02}"), True, WHITE)
         screen.blit(countdown_text, [screen_width - 250, 20])
  
         # If the game state is "game_over", wait for the user to close the window
