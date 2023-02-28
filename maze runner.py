@@ -257,6 +257,7 @@ def main():
     mixer.init()
     mixer.music.load('bensound-summer_mp3_music.mp3')
     mixer.music.play() 
+    i = 0
 
     while not done:
  
@@ -339,18 +340,20 @@ def main():
             elapsed_time = elapsed_time
             #         >>------------- TCP settings ------------------<<
             # Set up the TCP client socket
-            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            #the server name and port client wishes to access
-            print("We're in tcp client...");
-            server_name = '3.10.214.70'
-            server_port = 12000
-            client_socket.connect((server_name, server_port))
-            msg = str(remaining_time)
-            client_socket.send(msg.encode())
-            #return values from the server
-            msg = client_socket.recv(1024)
-            print(msg.decode())
-            client_socket.close()
+            if i == 0:
+             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+             #the server name and port client wishes to access
+             print("We're in tcp client...");
+             server_name = '13.40.107.12'
+             server_port = 12000
+             client_socket.connect((server_name, server_port))
+             msg = str(remaining_time)
+             client_socket.send(msg.encode())
+             #return values from the server
+             msg = client_socket.recv(1024)
+             print(msg.decode())
+             client_socket.close()
+             i += 1
         else: 
          elapsed_time = int(time() - start_time)
         remaining_time = max( elapsed_time, 0)
@@ -368,7 +371,7 @@ def main():
         pygame.display.flip()
 
 
-        clock.tick(50)
+        clock.tick(70)
    
  
  
