@@ -356,25 +356,7 @@ def main():
         remaining_time = max( elapsed_time, 0)
         countdown_text = font.render("Time Taken: " + str(remaining_time), True, WHITE)
         screen.blit(countdown_text, [screen_width - 250, 20])
-
-        if game_state == "game_over":
-             #         >>------------- TCP settings ------------------<<
-            # Set up the TCP client socket
-             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-             #the server name and port client wishes to access
-             print("We're in tcp client...");
-             server_name = '3.10.214.70'
-             server_port = 12000
-             client_socket.connect((server_name, server_port))
-             msg = str(remaining_time)
-             client_socket.send(msg.encode())
-             #return values from the server
-             msg = client_socket.recv(1024)
-             print(msg.decode())
-             client_socket.close()
-
-            
-
+ 
         # If the game state is "game_over", wait for the user to close the window
         if game_state == "game_over":
 
