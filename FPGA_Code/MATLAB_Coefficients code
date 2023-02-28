@@ -1,0 +1,7 @@
+>> lpFilt = designfilt('lowpassfir', 'PassbandFrequency', 300,'StopbandFrequency', 350, 'PassbandRipple', 0.5,'StopbandAttenuation', 65, 'SampleRate', 1e3);
+>> fvtool(lpFilt);
+>> lpFilt.Coefficients
+
+// currently working on changing the value of the passband, stopband etc.... frequencies to provide us with a suitable number of taps
+// the number of taps will then help to reduce the sensitiivity of out accelerometer. 
+
