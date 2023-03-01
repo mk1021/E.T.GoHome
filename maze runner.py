@@ -350,7 +350,7 @@ def main():
              client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
              #the server name and port client wishes to access
              print("We're in tcp client...");
-             server_name = '13.40.107.12'
+             server_name = '3.8.142.51'
              server_port = 12000
              client_socket.connect((server_name, server_port))
              msg = str(f"{remaining_time:02}")
