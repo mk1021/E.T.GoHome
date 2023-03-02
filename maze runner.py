@@ -352,7 +352,7 @@ def main():
              client_socket.send(msg.encode())
              #return values from the server
              msg = client_socket.recv(1024)
-             decoded_msg = msg.decode().split(',')
+             print(msg.decode())
              client_socket.close()
              i += 1
 
@@ -360,8 +360,18 @@ def main():
             screen.blit(leaderboard_text, [220, 50])
             score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, (147, 112, 219))
             screen.blit(score_text, [50, 130])
-            score_text = font.render("Top Scores : " + decoded_msg[1], True, (147, 112, 219))
+            score_text = font.render("Top Scores : ", True, (147, 112, 219))
             screen.blit(score_text, [50, 200])
+            score_text = font.render("1 : " + msg.decode()[2]+ msg.decode()[3], True, (147, 112, 219))
+            screen.blit(score_text, [200, 240])
+            score_text = font.render("2 : " + msg.decode()[8]+ msg.decode()[9], True, (147, 112, 219))
+            screen.blit(score_text, [200, 280])
+            score_text = font.render("3 : " + msg.decode()[14]+ msg.decode()[15], True, (147, 112, 219))
+            screen.blit(score_text, [200, 320])
+            score_text = font.render("4 : " + msg.decode()[20]+ msg.decode()[21], True, (147, 112, 219))
+            screen.blit(score_text, [200, 360])
+            score_text = font.render("5 : " + msg.decode()[26]+ msg.decode()[27], True, (147, 112, 219))
+            screen.blit(score_text, [200, 400])
 
         else: 
          elapsed_time = int(time() - start_time)
@@ -388,3 +398,4 @@ def main():
  
 if __name__ == "__main__":
     main()
+
