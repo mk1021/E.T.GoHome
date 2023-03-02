@@ -11,16 +11,14 @@ welcome_socket.listen(1)
 print('Server running on port ', server_port)
 #Now the main server loop
 CurrentScore = []
-Dummylist = []
 while True:
     connection_socket, caddr = welcome_socket.accept()
     #notice recv and send instead of recvto and sendto
     cmsg = connection_socket.recv(1024)
     cmsg = cmsg.decode()
     CurrentScore.append(cmsg)
-    CurrentScore.sort(reverse=True)
+    CurrentScore.sort()
     CurrentScore = CurrentScore[:5]
-    CurrentScore.sort(reverse=True)
 
     connection_socket.send(str(CurrentScore).encode()) 
 

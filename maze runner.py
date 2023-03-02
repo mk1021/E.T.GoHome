@@ -352,14 +352,15 @@ def main():
              client_socket.send(msg.encode())
              #return values from the server
              msg = client_socket.recv(1024)
-             print(msg.decode())
+             decoded_msg = msg.decode().split(',')
              client_socket.close()
              i += 1
+
             leaderboard_text = leaderboard_font.render("Leaderboard", True, (147, 112, 219))
             screen.blit(leaderboard_text, [220, 50])
             score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, (147, 112, 219))
             screen.blit(score_text, [50, 130])
-            score_text = font.render("Top Scores : " + msg.decode(), True, (147, 112, 219))
+            score_text = font.render("Top Scores : " + decoded_msg[1], True, (147, 112, 219))
             screen.blit(score_text, [50, 200])
 
         else: 
