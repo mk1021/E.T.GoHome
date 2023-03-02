@@ -338,11 +338,6 @@ def main():
 
           # Draw the countdown timer
         if current_room_no == 3:
-            leaderboard_text = leaderboard_font.render("Leaderboard", True, (147, 112, 219))
-            screen.blit(leaderboard_text, [220, 50])
-            score_text = font.render("Time : " + str(f"{remaining_time:02}"), True, (147, 112, 219))
-            screen.blit(score_text, [360, 110])
-
             elapsed_time = elapsed_time
             #         >>------------- TCP settings ------------------<<
             # Set up the TCP client socket
@@ -350,7 +345,7 @@ def main():
              client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
              #the server name and port client wishes to access
              print("We're in tcp client...");
-             server_name = '3.8.142.51'
+             server_name = '13.41.110.172'
              server_port = 12000
              client_socket.connect((server_name, server_port))
              msg = str(f"{remaining_time:02}")
@@ -360,6 +355,13 @@ def main():
              print(msg.decode())
              client_socket.close()
              i += 1
+            leaderboard_text = leaderboard_font.render("Leaderboard", True, (147, 112, 219))
+            screen.blit(leaderboard_text, [220, 50])
+            score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, (147, 112, 219))
+            screen.blit(score_text, [50, 130])
+            score_text = font.render("Top Scores : " + msg.decode(), True, (147, 112, 219))
+            screen.blit(score_text, [50, 200])
+
         else: 
          elapsed_time = int(time() - start_time)
         remaining_time = max( elapsed_time, 0)
