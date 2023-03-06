@@ -120,7 +120,7 @@ class Room1(Room):
                  [780, 400, 20, 250, WHITE],
                  [20, 0, 760, 20, WHITE],
                  [20, 580, 760, 20, WHITE],
-                 [390, 150, 20, 300, BLUE]
+                 [390, 100, 20, 400, BLUE]
                 ]
  
         # Loop through the list. Create the wall, add it to the list
@@ -140,8 +140,8 @@ class Room2(Room):
                  [780, 400, 20, 250, WHITE],
                  [20, 0, 760, 20, WHITE],
                  [20, 580, 760, 20, WHITE],
-                 [190, 50, 20, 500, GREEN],
-                 [590, 50, 20, 500, GREEN]
+                 [190, 80, 20, 500, GREEN],
+                 [590, 20, 20, 500, GREEN]
                 ]
  
         for item in walls:
@@ -166,7 +166,7 @@ class Room3(Room):
             self.wall_list.add(wall)
  
         for x in range(100, 800, 100):
-            for y in range(50, 451, 300):
+            for y in range(20, 451, 360):
                 wall = Wall(x, y, 20, 200, RED)
                 self.wall_list.add(wall)
  
