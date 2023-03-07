@@ -344,20 +344,27 @@ def main():
             elapsed_time = elapsed_time
             #         >>------------- TCP settings ------------------<<
             # Set up the TCP client socket
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            #the server name and port client wishes to access
+            print("We're in tcp client...")
+            server_name = '13.41.110.172'
+            server_port = 12000
+            
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client_socket.connect((server_name, server_port))
+
             if i == 0:
-             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-             #the server name and port client wishes to access
-             print("We're in tcp client...");
-             server_name = '13.41.110.172'
-             server_port = 12000
-             client_socket.connect((server_name, server_port))
-             msg = str(f"{remaining_time:02}")
-             client_socket.send(msg.encode())
-             #return values from the server
-             msg = client_socket.recv(1024)
-             print(msg.decode())
+             name = input("Enter your name: ")
+             client_socket.send(("serverName"+"/"+str(f"{remaining_time:02}")+"/"+name).encode())
+             i =+ 1
+            else:
+             print("hi")
+             leaderboard_str= client_socket.recv(1024).decode()
+ 
+             print(leaderboard_str)
+            
              client_socket.close()
-             i += 1
+
 
             leaderboard_text = leaderboard_font.render("Leaderboard", True, (147, 112, 219))
             screen.blit(leaderboard_text, [220, 50])
@@ -365,16 +372,22 @@ def main():
             screen.blit(score_text, [50, 130])
             score_text = font.render("Top Scores : ", True, (147, 112, 219))
             screen.blit(score_text, [50, 200])
-            score_text = font.render("1 : " + msg.decode()[2]+ msg.decode()[3], True, (147, 112, 219))
-            screen.blit(score_text, [200, 240])
-            score_text = font.render("2 : " + msg.decode()[8]+ msg.decode()[9], True, (147, 112, 219))
-            screen.blit(score_text, [200, 280])
-            score_text = font.render("3 : " + msg.decode()[14]+ msg.decode()[15], True, (147, 112, 219))
-            screen.blit(score_text, [200, 320])
-            score_text = font.render("4 : " + msg.decode()[20]+ msg.decode()[21], True, (147, 112, 219))
-            screen.blit(score_text, [200, 360])
-            score_text = font.render("5 : " + msg.decode()[26]+ msg.decode()[27], True, (147, 112, 219))
-            screen.blit(score_text, [200, 400])
+         #   score_text = font.render( leaderboard_str , True, (147, 112, 219))
+          #  screen.blit(score_text, [200, 200])
+        #    if len(msg.decode()) == 0:
+        #      score_text = font.render("1 : " + msg.decode()[2]+ msg.decode()[3], True, (147, 112, 219))
+        #      screen.blit(score_text, [200, 240])
+        #    elif len(msg.decode()) == 1:
+        #     score_text = font.render("2 : " + msg.decode()[8]+ msg.decode()[9], True, (147, 112, 219))
+        #     screen.blit(score_text, [200, 280])
+        #    elif len(msg.decode()) == 2:
+        #     score_text = font.render("3 : " + msg.decode()[14]+ msg.decode()[15], True, (147, 112, 219))
+        #     screen.blit(score_text, [200, 320])
+        #    elif len(msg.decode()) == 3:
+        #     score_text = font.render("4 : " + msg.decode()[20]+ msg.decode()[21], True, (147, 112, 219))
+        #     screen.blit(score_text, [200, 360])
+        #    else :
+        #     score_text = font.render("5 : " + msg.decode()[26]+ msg.decode()[27], True, (147, 112, 219))
 
         else: 
          elapsed_time = int(time() - start_time)
