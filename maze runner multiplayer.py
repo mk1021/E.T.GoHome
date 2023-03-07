@@ -96,6 +96,64 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.rect.top = block.rect.bottom
 
+class Player2(pygame.sprite.Sprite):
+    """ This class represents the bar at the bottom that the
+    player controls """
+ 
+    # Set speed vector
+    change_x = 0
+    change_y = 0
+ 
+    def __init__(self, x, y):
+        """ Constructor function """
+ 
+        # Call the parent's constructor
+        super().__init__()
+ 
+        # Set height, width
+        self.image = pygame.Surface([15, 15])
+        self.image.fill(PINK)
+ 
+        # Make our top-left corner the passed-in location.
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
+ 
+    def changespeed(self, x, y):
+        """ Change the speed of the player. Called with a keypress. """
+        self.change_x += x
+        self.change_y += y
+ 
+    def move(self, walls):
+        """ Find a new position for the player """
+ 
+        # Move left/right
+        self.rect.x += self.change_x
+ 
+        # Did this update cause us to hit a wall?
+        block_hit_list = pygame.sprite.spritecollide(self, walls, False)
+        for block in block_hit_list:
+            # If we are moving right, set our right side to the left side of
+            # the item we hit
+            if self.change_x > 0:
+                self.rect.right = block.rect.left
+            else:
+                # Otherwise if we are moving left, do the opposite.
+                self.rect.left = block.rect.right
+ 
+        # Move up/down
+        self.rect.y += self.change_y
+ 
+        # Check and see if we hit anything
+        block_hit_list = pygame.sprite.spritecollide(self, walls, False)
+        for block in block_hit_list:
+ 
+            # Reset our position based on the top/bottom of the object.
+            if self.change_y > 0:
+                self.rect.bottom = block.rect.top
+            else:
+                self.rect.top = block.rect.bottom
+ 
 
 class Room(object):
     """ Base class for all rooms. """
@@ -226,8 +284,10 @@ def main():
  
     # Create the player paddle object
     player = Player(50, 50)
+    player2 = Player2(50, 540)
     movingsprites = pygame.sprite.Group()
     movingsprites.add(player)
+    movingsprites.add(player2)
  
     rooms = []
  
@@ -279,6 +339,14 @@ def main():
                     player.changespeed(0, -5)
                 if event.key == pygame.K_DOWN:
                     player.changespeed(0, 5)
+                if event.key == pygame.K_a:
+                    player2.changespeed(-5, 0)
+                if event.key == pygame.K_d:
+                    player2.changespeed(5, 0)
+                if event.key == pygame.K_w:
+                    player2.changespeed(0, -5)
+                if event.key == pygame.K_s:
+                    player2.changespeed(0, 5)
  
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
@@ -289,11 +357,20 @@ def main():
                     player.changespeed(0, 5)
                 if event.key == pygame.K_DOWN:
                     player.changespeed(0, -5)
+                if event.key == pygame.K_a:
+                    player2.changespeed(5, 0)
+                if event.key == pygame.K_d:
+                    player2.changespeed(-5, 0)
+                if event.key == pygame.K_w:
+                    player2.changespeed(0, 5)
+                if event.key == pygame.K_s:
+                    player2.changespeed(0, -5)
                 
 
         # --- Game Logic ---
  
         player.move(current_room.wall_list)
+        player2.move(current_room.wall_list)
  
         if player.rect.x < -15:
             if current_room_no == 0:
@@ -333,6 +410,43 @@ def main():
         if current_room_no == 4:
                     game_state = "game_over"
         
+        if player2.rect.x < -15:
+            if current_room_no == 0:
+                current_room_no = 2
+                current_room = rooms[current_room_no]
+                player2.rect.x = 790
+            elif current_room_no == 2:
+                current_room_no = 1
+                current_room = rooms[current_room_no]
+                player2.rect.x = 790
+            else:
+                current_room_no = 0
+                current_room = rooms[current_room_no]
+                player2.rect.x = 790
+
+        if player2.rect.x > 801:
+            if current_room_no == 0:
+               current_room_no = 1
+               current_room = rooms[current_room_no]
+               player2.rect.x = 0
+            elif current_room_no == 1:
+               current_room_no = 2
+               current_room = rooms[current_room_no]
+               player2.rect.x = 0
+            elif current_room_no == 2:
+               current_room_no = 3
+               current_room = rooms[current_room_no]
+               player2.rect.x = 0
+            elif current_room_no == 3:
+               current_room_no = 4
+               current_room = rooms[current_room_no]
+               player2.rect.x = 0
+            else:
+               current_room_no = 0
+               current_room = rooms[current_room_no]
+               player2.rect.x = 0
+        if current_room_no == 4:
+            game_state = "game_over"
  
         # --- Drawing ---
         screen.fill(BLACK)
