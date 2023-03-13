@@ -19,7 +19,7 @@ font_size = 30
 # Set up the TCP client socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #the server name and port client wishes to access
-server_name = '13.41.110.172'
+server_name = '18.132.50.40'
 server_port = 12000
 client_socket.connect((server_name, server_port))
 
@@ -495,7 +495,7 @@ def main():
 
               i =+ 1 
             leaderboard_text = leaderboard_font.render("Scores", True, (147, 112, 219))
-            screen.blit(leaderboard_text, [220, 50])
+            screen.blit(leaderboard_text, [240, 50])
             score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, (147, 112, 219))
             screen.blit(score_text, [50, 130])
             score_text = font.render(leaderboard_str, True, (147, 112, 219))

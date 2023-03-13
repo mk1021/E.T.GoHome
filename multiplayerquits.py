@@ -72,6 +72,15 @@ def handle_client(conn,addr):
                         print(connection_times)                      
 
              break
+            elif data.startwith == 'Player1_Score:':
+                Player1_Score = int(data.split()[1])
+                print((data.split()[1]))
+                player1_conn.send("Player1_Score: " + str(data.split()[1]).encode())
+            elif data.startwith == 'Player2_Score:':
+                Player2_Score = int(data.split()[1])
+                print((data.split()[1]))
+                player1_conn.send("Player2_Score: " + str(data.split()[1]).encode())
+                                  
             elif data == 'request':
               
               
