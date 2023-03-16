@@ -19,7 +19,7 @@ font_size = 30
 # Set up the TCP client socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #the server name and port client wishes to access
-server_name = '18.132.50.40'
+server_name = '18.130.254.105'
 server_port = 12000
 client_socket.connect((server_name, server_port))
 
@@ -63,8 +63,11 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
  
         # Set height, width
-        self.image = pygame.Surface([15, 15])
-        self.image.fill(WHITE)
+        sprite_image = pygame.image.load("5e8f089aee3ef200041aa0dc.png")
+
+        # Scale the image down to a smaller size
+        small_sprite_image = pygame.transform.scale(sprite_image, (35, 35))
+        self.image = small_sprite_image
  
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
@@ -409,6 +412,27 @@ def main():
     receive_thread = threading.Thread(target=receive)
     #receive_thread.setDaemon(True)
     receive_thread.start()
+
+    # Load the image to use as the background
+    background_image = pygame.image.load("night-sky-with-full-moon_1048-4421.png")
+    
+    # Get the dimensions of the image
+    image_width, image_height = background_image.get_size()
+    
+    # Calculate the scaling factors to fill the screen
+    scale_width = screen_width / image_width
+    scale_height = screen_height / image_height
+    scale = max(scale_width, scale_height)
+    
+    # Scale the image
+    background_image = pygame.transform.scale(background_image, (int(image_width * scale), int(image_height * scale)))
+    
+    # Get the dimensions of the scaled image
+    image_width, image_height = background_image.get_size()
+    
+    # Calculate the position to center the image on the screen
+    x = (screen_width - image_width) / 2
+    y = (screen_height - image_height) / 2
     
     while not done:
         game_over = False
@@ -497,7 +521,7 @@ def main():
                     game_state = "game_over"
  
         # --- Drawing ---
-        screen.fill(BLACK)
+        screen.blit(background_image, (x, y))
         movingsprites.draw(screen)
         current_room.wall_list.draw(screen)
 
@@ -525,6 +549,7 @@ def main():
 
               if leaderboard_str.startswith('Leaderboard:'):
                 leaderboard = leaderboard_str
+                leaderboard_lines = leaderboard_str.split("\n")
                 print (leaderboard)
 
          
@@ -540,12 +565,17 @@ def main():
               leaderboard_text = leaderboard_font.render("Scores", True, (147, 112, 219))
               screen.blit(leaderboard_text, [220, 50])
               score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, (147, 112, 219))
-              screen.blit(score_text, [50, 130])
-              score_text = font.render(leaderboard, True, (147, 112, 219))
-              screen.blit(score_text, [50, 200]) 
+              screen.blit(score_text, [50, 100])
+              
+
               if player2finished: 
+               for i in range(6):
+                    line = leaderboard_lines[i]
+                    text = font.render(line, True, WHITE)
+                    screen.blit(text, (50,200 + i * 25))
+               
                score_text = font.render(Scoreprint, True, (147, 112, 219))
-               screen.blit(score_text, [50, 250])  
+               screen.blit(score_text, [50, 150])  
         
         #PLAYER 2====================================
             if player_num == 2:
@@ -557,6 +587,7 @@ def main():
 
               if leaderboard_str.startswith('Leaderboard:'):
                 leaderboard = leaderboard_str
+                leaderboard_lines = leaderboard_str.split("\n")
                 print (leaderboard)
 
          
@@ -572,15 +603,17 @@ def main():
               leaderboard_text = leaderboard_font.render("Scores", True, (147, 112, 219))
               screen.blit(leaderboard_text, [220, 50])
               score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, (147, 112, 219))
-              screen.blit(score_text, [50, 130])
-              score_text = font.render(leaderboard, True, (147, 112, 219))
-              screen.blit(score_text, [50, 200]) 
-              if player1finished: 
-               score_text = font.render(Scoreprint, True, (147, 112, 219))
-               screen.blit(score_text, [50, 250])  
+              screen.blit(score_text, [50, 100])
+              
 
-            
-            
+              if player1finished: 
+               for i in range(6):
+                    line = leaderboard_lines[i]
+                    text = font.render(line, True, WHITE)
+                    screen.blit(text, (50,200 + i * 25))
+               
+               score_text = font.render(Scoreprint, True, (147, 112, 219))
+               screen.blit(score_text, [50, 150])  
             #print("out of loop")
             
    
