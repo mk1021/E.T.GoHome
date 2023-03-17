@@ -13,6 +13,8 @@ BLUE = (0, 0, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 PURPLE = (255, 0, 255)
+VIOLET = (138,43,226)
+DEEP_PINK = (255, 20, 147)
 font_size = 30
 
 
@@ -27,7 +29,7 @@ client_socket.connect((server_name, server_port))
 
 # Icon                             
 
-icon = pygame.image.load('trekking.png')   
+icon = pygame.image.load('alien.png')   
 
 pygame.display.set_icon(icon)
 
@@ -74,8 +76,8 @@ class Player(pygame.sprite.Sprite):
  
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
-        self.rect.y = y - 5 
-        self.rect.x = x - 5
+        self.rect.y = y - 7 
+        self.rect.x = x - 7
 
         self.images = {'left': "output-onlinepngtools.png",
                'right': "5e8f089aee3ef200041aa0dc.png",
@@ -235,14 +237,40 @@ class Room3(Room):
  
         for x in range(100, 800, 100):
             for y in range(20, 451, 360):
-                wall = Wall(x, y, 10, 200, RED)
+                wall = Wall(x, y, 10, 200, VIOLET)
                 self.wall_list.add(wall)
  
         for x in range(150, 700, 100):
             wall = Wall(x, 200, 10, 200, WHITE)
             self.wall_list.add(wall)
 
-
+class Room4(Room):
+    """This creates all the walls in room 1"""
+    def __init__(self):
+        super().__init__()
+        # Make the walls. (x_pos, y_pos, width, height)
+ 
+        # This is a list of walls. Each is in the form [x, y, width, height]
+        walls = [[0, -100, 20, 250, WHITE],
+                 [0, 400, 20, 250, WHITE],
+                 [780, -100, 20, 250, WHITE],
+                 [780, 400, 20, 250, WHITE],
+                 [20, 0, 760, 20, WHITE],
+                 [20, 580, 760, 20, WHITE],
+                 [180, 20, 20, 400, DEEP_PINK],
+                 [180, 20, 180, 20, DEEP_PINK],
+                 [180, 220, 180, 20, DEEP_PINK],
+                 [180, 420, 180, 20, DEEP_PINK],
+                 [400, 420, 15, 15, DEEP_PINK],
+                 [420, 160, 180, 20, DEEP_PINK],
+                 [500, 160, 20, 420, DEEP_PINK],
+                 [620, 565, 15, 15, DEEP_PINK],
+                ]
+ 
+        # Loop through the list. Create the wall, add it to the list
+        for item in walls:
+            wall = Wall(item[0], item[1], item[2], item[3], item[4])
+            self.wall_list.add(wall)
 
 
 class Leaderboard(Room):
@@ -397,7 +425,7 @@ def main():
     screen = pygame.display.set_mode([screen_width, screen_height])
  
     # Set the title of the window
-    pygame.display.set_caption('Hello Jeff')
+    pygame.display.set_caption('Help E.T.!')
  
     # Create the player paddle object
     player = Player(50, 50)
@@ -416,6 +444,9 @@ def main():
     rooms.append(room)
  
     room = Room3()
+    rooms.append(room)
+
+    room = Room4()
     rooms.append(room)
 
     room = PlayerScores()
@@ -557,6 +588,10 @@ def main():
                 current_room_no = 6
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
+            elif current_room_no == 6:
+                current_room_no = 7
+                current_room = rooms[current_room_no]
+                player.rect.x = 0
             else:
                 current_room_no = 0
                 current_room = rooms[current_room_no]
@@ -577,7 +612,7 @@ def main():
          start_time = time() 
          elapsed_time = int(time() - start_time)
          remaining_time = max( elapsed_time, 0)
-         countdown_text = font.render("Time Taken: " + str(f"{remaining_time:02}"), True, WHITE)
+         countdown_text = font.render("Time Taken: " + str(f"{remaining_time:03}"), True, WHITE)
          screen.blit(countdown_text, [550, 20])
         
 
@@ -612,7 +647,7 @@ def main():
             if player_num == 1:
               if i == 0:
                name = input("Enter your name: ")
-               client_socket.send(("serverName"+"/"+str(f"{remaining_time:02}")+"/"+name).encode())
+               client_socket.send(("serverName"+"/"+str(f"{remaining_time:03}")+"/"+name).encode())
                leaderboard_str= client_socket.recv(1024).decode()
                i += 1
 
@@ -622,7 +657,7 @@ def main():
                 print (leaderboard)
 
          
-              client_socket.send(("Player1_Score: " + str(f"{remaining_time:02}")).encode())
+              client_socket.send(("Player1_Score: " + str(f"{remaining_time:03}")).encode())
               score = client_socket.recv(1024).decode()
                
               
@@ -633,7 +668,7 @@ def main():
               
               leaderboard_text = leaderboard_font.render("Scores", True, WHITE)
               screen.blit(leaderboard_text, [250, 50])
-              score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, WHITE)
+              score_text = font.render("Your Time : " + str(f"{remaining_time:03}"), True, WHITE)
               screen.blit(score_text, [50, 120])
               
 
@@ -650,7 +685,7 @@ def main():
             if player_num == 2:
               if i == 0:
                name = input("Enter your name: ")
-               client_socket.send(("serverName"+"/"+str(f"{remaining_time:02}")+"/"+name).encode())
+               client_socket.send(("serverName"+"/"+str(f"{remaining_time:03}")+"/"+name).encode())
                leaderboard_str= client_socket.recv(1024).decode()
                i += 1
 
@@ -660,7 +695,7 @@ def main():
                 print (leaderboard)
 
          
-              client_socket.send(("Player2_Score: " + str(f"{remaining_time:02}")).encode())
+              client_socket.send(("Player2_Score: " + str(f"{remaining_time:03}")).encode())
               score = client_socket.recv(1024).decode()
                
               
@@ -671,7 +706,7 @@ def main():
               
               leaderboard_text = leaderboard_font.render("Scores", True, WHITE)
               screen.blit(leaderboard_text, [250, 50])
-              score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, WHITE)
+              score_text = font.render("Your Time : " + str(f"{remaining_time:03}"), True, WHITE)
               screen.blit(score_text, [50, 120])
               
 
@@ -690,7 +725,7 @@ def main():
           # Get the dimensions of the image
         elif current_room_no == 4:
             elapsed_time = elapsed_time
-            countdown_text = font.render("Time Taken: " + str(f"{remaining_time:02}"), True, WHITE)
+            countdown_text = font.render("Time Taken: " + str(f"{remaining_time:03}"), True, WHITE)
             screen.blit(countdown_text, [screen_width - 250, 20])
             background_image = pygame.image.load("home.jpeg")
             image_width, image_height = background_image.get_size()
@@ -712,7 +747,7 @@ def main():
         else:
          elapsed_time = int(time() - start_time)
          remaining_time = max( elapsed_time, 0)
-         countdown_text = font.render("Time Taken: " + str(f"{remaining_time:02}"), True, WHITE)
+         countdown_text = font.render("Time Taken: " + str(f"{remaining_time:03}"), True, WHITE)
          screen.blit(countdown_text, [screen_width - 250, 20])
          background_image = pygame.image.load("night-sky-with-full-moon_1048-4421.png")
          image_width, image_height = background_image.get_size()

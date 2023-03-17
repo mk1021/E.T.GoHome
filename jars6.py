@@ -9,10 +9,12 @@ import threading
  
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-BLUE = (0, 0, 255)
+BLUE = (65, 105, 225)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 PURPLE = (255, 0, 255)
+VIOLET = (138,43,226)
+DEEP_PINK = (255, 20, 147)
 font_size = 30
 
 
@@ -27,11 +29,37 @@ client_socket.connect((server_name, server_port))
 
 # Icon                             
 
-icon = pygame.image.load('trekking.png')   
+icon = pygame.image.load('alien.png')   
 
 pygame.display.set_icon(icon)
 
- 
+start_time = 0
+time_offset = 0
+
+pygame.font.init()
+font = pygame.font.Font(None, 36)
+
+def UpdateStartTime(value):
+    global start_time 
+    start_time = value
+
+def UpdateTime():
+    global start_time
+    elapsed_time = int(time() - start_time + time_offset)
+    countdown_text = font.render("Time Taken: " + str(f"{elapsed_time:03}"), True, WHITE)
+    return countdown_text
+
+def UpdateTimeVal(value):
+    global start_time
+    global time_offset
+    time_offset = time_offset + value
+    elapsed_time = int(time() - start_time + time_offset)
+    countdown_text = font.render("Time Taken: " + str(f"{elapsed_time:03}"), True, WHITE)
+    return countdown_text
+
+
+
+
 class Wall(pygame.sprite.Sprite):
     """This class represents the bar at the bottom that the player controls """
  
@@ -74,15 +102,15 @@ class Player(pygame.sprite.Sprite):
  
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
-        self.rect.y = y - 5 
-        self.rect.x = x - 5
+        self.rect.y = y - 7 
+        self.rect.x = x - 7
 
         self.images = {'left': "output-onlinepngtools.png",
                'right': "5e8f089aee3ef200041aa0dc.png",
                'up': "5e8f089aee3ef200041aa0dc.png",
                'down': "5e8f089aee3ef200041aa0dc.png"}
- 
- 
+        
+
     def changespeed(self, x, y):
         """ Change the speed of the player. Called with a keypress. """
                 # Update the dictionary of images
@@ -115,6 +143,7 @@ class Player(pygame.sprite.Sprite):
         # Did this update cause us to hit a wall?
         block_hit_list = pygame.sprite.spritecollide(self, walls, False)
         for block in block_hit_list:
+            print("collided")
             # If we are moving right, set our right side to the left side of
             # the item we hit
             if self.change_x > 0:
@@ -122,6 +151,7 @@ class Player(pygame.sprite.Sprite):
             else:
                 # Otherwise if we are moving left, do the opposite.
                 self.rect.left = block.rect.right
+            UpdateTimeVal(5)
  
         # Move up/down
         self.rect.y += self.change_y
@@ -129,7 +159,7 @@ class Player(pygame.sprite.Sprite):
         # Check and see if we hit anything
         block_hit_list = pygame.sprite.spritecollide(self, walls, False)
         for block in block_hit_list:
- 
+            print("collided2")
             # Reset our position based on the top/bottom of the object.
             if self.change_y > 0:
                 self.rect.bottom = block.rect.top
@@ -235,14 +265,40 @@ class Room3(Room):
  
         for x in range(100, 800, 100):
             for y in range(20, 451, 360):
-                wall = Wall(x, y, 10, 200, RED)
+                wall = Wall(x, y, 10, 200, VIOLET)
                 self.wall_list.add(wall)
  
         for x in range(150, 700, 100):
             wall = Wall(x, 200, 10, 200, WHITE)
             self.wall_list.add(wall)
 
-
+class Room4(Room):
+    """This creates all the walls in room 1"""
+    def __init__(self):
+        super().__init__()
+        # Make the walls. (x_pos, y_pos, width, height)
+ 
+        # This is a list of walls. Each is in the form [x, y, width, height]
+        walls = [[0, -100, 20, 250, WHITE],
+                 [0, 400, 20, 250, WHITE],
+                 [780, -100, 20, 250, WHITE],
+                 [780, 400, 20, 250, WHITE],
+                 [20, 0, 760, 20, WHITE],
+                 [20, 580, 760, 20, WHITE],
+                 [180, 20, 20, 400, DEEP_PINK],
+                 [180, 20, 180, 20, DEEP_PINK],
+                 [180, 220, 180, 20, DEEP_PINK],
+                 [180, 420, 180, 20, DEEP_PINK],
+                 [400, 420, 15, 15, DEEP_PINK],
+                 [420, 160, 180, 20, DEEP_PINK],
+                 [500, 160, 20, 420, DEEP_PINK],
+                 [620, 565, 15, 15, DEEP_PINK],
+                ]
+ 
+        # Loop through the list. Create the wall, add it to the list
+        for item in walls:
+            wall = Wall(item[0], item[1], item[2], item[3], item[4])
+            self.wall_list.add(wall)
 
 
 class Leaderboard(Room):
@@ -397,7 +453,7 @@ def main():
     screen = pygame.display.set_mode([screen_width, screen_height])
  
     # Set the title of the window
-    pygame.display.set_caption('Hello Jeff')
+    pygame.display.set_caption('Help E.T.!')
  
     # Create the player paddle object
     player = Player(50, 50)
@@ -418,6 +474,9 @@ def main():
     room = Room3()
     rooms.append(room)
 
+    room = Room4()
+    rooms.append(room)
+
     room = PlayerScores()
     rooms.append(room)
 
@@ -434,8 +493,6 @@ def main():
  
     done = False
 
-    start_time = time()
-    font = pygame.font.Font(None, 36)
     leaderboard_font = pygame.font.Font('freesansbold.ttf', 56)
     game_state = "playing"
     mixer.init()
@@ -557,11 +614,15 @@ def main():
                 current_room_no = 6
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
+            elif current_room_no == 6:
+                current_room_no = 7
+                current_room = rooms[current_room_no]
+                player.rect.x = 0
             else:
                 current_room_no = 0
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
-        if current_room_no == 6:
+        if current_room_no == 7:
                     game_state = "game_over"
  
         # --- Drawing ---
@@ -574,17 +635,18 @@ def main():
              print('other player not connected')
              client_socket.send("request".encode())
              # Load the image to use as the background
-         start_time = time() 
-         elapsed_time = int(time() - start_time)
-         remaining_time = max( elapsed_time, 0)
-         countdown_text = font.render("Time Taken: " + str(f"{remaining_time:02}"), True, WHITE)
+         UpdateStartTime(int(time()))
+         #start_time = time() 
+         #elapsed_time = int(time() - start_time)
+         #remaining_time = max( elapsed_time, 0)
+         countdown_text = font.render("Time Taken: " + str(f"{00:03}"), True, WHITE)
          screen.blit(countdown_text, [550, 20])
         
 
 
           # Draw the countdown timer
-        elif current_room_no == 5:
-            background_image = pygame.image.load("stars-2643089__340.jpeg")
+        elif current_room_no == 6:
+            background_image = pygame.image.load("Scores.jpg")
             image_width, image_height = background_image.get_size()
        
             # Calculate the scaling factors to fill the screen
@@ -612,7 +674,7 @@ def main():
             if player_num == 1:
               if i == 0:
                name = input("Enter your name: ")
-               client_socket.send(("serverName"+"/"+str(f"{remaining_time:02}")+"/"+name).encode())
+               client_socket.send(("serverName"+"/"+str(f"{remaining_time:03}")+"/"+name).encode())
                leaderboard_str= client_socket.recv(1024).decode()
                i += 1
 
@@ -622,7 +684,7 @@ def main():
                 print (leaderboard)
 
          
-              client_socket.send(("Player1_Score: " + str(f"{remaining_time:02}")).encode())
+              client_socket.send(("Player1_Score: " + str(f"{remaining_time:03}")).encode())
               score = client_socket.recv(1024).decode()
                
               
@@ -631,26 +693,25 @@ def main():
                  Scoreprint = "Player2 Score: " +(score.split()[1])
                  player2finished = True
               
-              leaderboard_text = leaderboard_font.render("Scores", True, WHITE)
-              screen.blit(leaderboard_text, [250, 50])
-              score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, WHITE)
-              screen.blit(score_text, [50, 120])
+      
+              score_text = font.render("Your Time : " + str(f"{remaining_time:03}"), True, WHITE)
+              screen.blit(score_text, [70, 200])
               
 
               if player2finished: 
                for i in range(6):
                     line = leaderboard_lines[i]
                     text = font.render(line, True, WHITE)
-                    screen.blit(text, (50,220 + i * 25))
+                    screen.blit(text, (70,300 + i * 25))
                
-               score_text = font.render(Scoreprint, True, (147, 112, 219))
-               screen.blit(score_text, [50, 170])  
+               score_text = font.render(Scoreprint, True, WHITE)
+               screen.blit(score_text, [70, 240])  
         
         #PLAYER 2====================================
             if player_num == 2:
               if i == 0:
                name = input("Enter your name: ")
-               client_socket.send(("serverName"+"/"+str(f"{remaining_time:02}")+"/"+name).encode())
+               client_socket.send(("serverName"+"/"+str(f"{remaining_time:03}")+"/"+name).encode())
                leaderboard_str= client_socket.recv(1024).decode()
                i += 1
 
@@ -660,7 +721,7 @@ def main():
                 print (leaderboard)
 
          
-              client_socket.send(("Player2_Score: " + str(f"{remaining_time:02}")).encode())
+              client_socket.send(("Player2_Score: " + str(f"{remaining_time:03}")).encode())
               score = client_socket.recv(1024).decode()
                
               
@@ -669,28 +730,27 @@ def main():
                  Scoreprint = "Player1 Score: " +(score.split()[1])
                  player1finished = True
               
-              leaderboard_text = leaderboard_font.render("Scores", True, WHITE)
-              screen.blit(leaderboard_text, [250, 50])
-              score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, WHITE)
-              screen.blit(score_text, [50, 120])
+
+              score_text = font.render("Your Time : " + str(f"{remaining_time:03}"), True, WHITE)
+              screen.blit(score_text, [70, 200])
               
 
               if player1finished: 
                for i in range(6):
                     line = leaderboard_lines[i]
                     text = font.render(line, True, WHITE)
-                    screen.blit(text, (50,220 + i * 25))
+                    screen.blit(text, (70,300 + i * 25))
                
                score_text = font.render(Scoreprint, True, WHITE)
-               screen.blit(score_text, [50, 170])  
+               screen.blit(score_text, [70, 240])  
             #print("out of loop")
             
    
 
           # Get the dimensions of the image
-        elif current_room_no == 4:
+        elif current_room_no == 5:
             elapsed_time = elapsed_time
-            countdown_text = font.render("Time Taken: " + str(f"{remaining_time:02}"), True, WHITE)
+            countdown_text = font.render("Time Taken: " + str(f"{remaining_time:03}"), True, WHITE)
             screen.blit(countdown_text, [screen_width - 250, 20])
             background_image = pygame.image.load("home.jpeg")
             image_width, image_height = background_image.get_size()
@@ -710,11 +770,12 @@ def main():
             x = (screen_width - image_width) / 2
             y = (screen_height - image_height) / 2
         else:
-         elapsed_time = int(time() - start_time)
-         remaining_time = max( elapsed_time, 0)
-         countdown_text = font.render("Time Taken: " + str(f"{remaining_time:02}"), True, WHITE)
+         #elapsed_time = int(time() - start_time)
+         #remaining_time = max( elapsed_time, 0)
+         #countdown_text = font.render("Time Taken: " + str(f"{remaining_time:03}"), True, WHITE)
+         countdown_text = UpdateTime()
          screen.blit(countdown_text, [screen_width - 250, 20])
-         background_image = pygame.image.load("night-sky-with-full-moon_1048-4421.png")
+         background_image = pygame.image.load("background.jpg")
          image_width, image_height = background_image.get_size()
     
          # Calculate the scaling factors to fill the screen
