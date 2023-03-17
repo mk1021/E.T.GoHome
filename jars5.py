@@ -74,8 +74,8 @@ class Player(pygame.sprite.Sprite):
  
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
-        self.rect.y = y
-        self.rect.x = x
+        self.rect.y = y - 7 
+        self.rect.x = x - 7
 
         self.images = {'left': "output-onlinepngtools.png",
                'right': "5e8f089aee3ef200041aa0dc.png",
@@ -220,7 +220,7 @@ class Room3(Room):
     """This creates all the walls in room 3"""
     def __init__(self):
         super().__init__()
- 
+
         walls = [[0, -100, 20, 250, WHITE],
                  [0, 400, 20, 250, WHITE],
                  [780, -100, 20, 250, WHITE],
@@ -228,25 +228,22 @@ class Room3(Room):
                  [20, 0, 760, 20, WHITE],
                  [20, 580, 760, 20, WHITE],
                 ]
-
+ 
         for item in walls:
             wall = Wall(item[0], item[1], item[2], item[3], item[4])
             self.wall_list.add(wall)
-
+ 
         for x in range(100, 800, 100):
             for y in range(20, 451, 360):
-                wall = Wall(x, y, 20, 200, RED)
+                wall = Wall(x, y, 10, 200, RED)
                 self.wall_list.add(wall)
-
+ 
         for x in range(150, 700, 100):
-            wall = Wall(x, 200, 20, 200, WHITE)
+            wall = Wall(x, 200, 10, 200, WHITE)
             self.wall_list.add(wall)
 
-        wall = Wall(100, 20, 20, 200, GREEN)
-        self.wall_list.add(wall)
 
-        wall = Wall(700, 380, 20, 200, GREEN)
-        self.wall_list.add(wall)
+
 
 class Leaderboard(Room):
      """This creates all the walls in room 3"""
@@ -421,6 +418,9 @@ def main():
     room = Room3()
     rooms.append(room)
 
+    room = PlayerScores()
+    rooms.append(room)
+
     room = Leaderboard()
     rooms.append(room)
 
@@ -552,11 +552,16 @@ def main():
             elif current_room_no == 4:
                 current_room_no = 5
                 current_room = rooms[current_room_no]
+                player.rect.x = 0
+            elif current_room_no == 5:
+                current_room_no = 6
+                current_room = rooms[current_room_no]
+                player.rect.x = 0
             else:
                 current_room_no = 0
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
-        if current_room_no == 5:
+        if current_room_no == 6:
                     game_state = "game_over"
  
         # --- Drawing ---
@@ -569,17 +574,40 @@ def main():
              print('other player not connected')
              client_socket.send("request".encode())
              # Load the image to use as the background
+         start_time = time() 
+         elapsed_time = int(time() - start_time)
+         remaining_time = max( elapsed_time, 0)
+         countdown_text = font.render("Time Taken: " + str(f"{remaining_time:02}"), True, WHITE)
+         screen.blit(countdown_text, [600, 20])
         
 
 
           # Draw the countdown timer
-        if current_room_no == 4:
+        elif current_room_no == 5:
+            background_image = pygame.image.load("stars-2643089__340.jpeg")
+            image_width, image_height = background_image.get_size()
+       
+            # Calculate the scaling factors to fill the screen
+            scale_width = screen_width / image_width
+            scale_height = screen_height / image_height
+            scale = max(scale_width, scale_height)
+            
+            # Scale the image
+            background_image = pygame.transform.scale(background_image, (int(image_width * scale), int(image_height * scale)))
+            
+            # Get the dimensions of the scaled image
+            image_width, image_height = background_image.get_size()
+            
+            # Calculate the position to center the image on the screen
+            x = (screen_width - image_width) / 2
+            y = (screen_height - image_height) / 2
+ 
             if x == 0:
              leaderboard = " "
              x+=1
             elapsed_time = elapsed_time
             #         >>------------- TCP settings ------------------<< 
-        
+      
         #PLAYER 1====================================
             if player_num == 1:
               if i == 0:
@@ -603,20 +631,20 @@ def main():
                  Scoreprint = "Player2 Score: " +(score.split()[1])
                  player2finished = True
               
-              leaderboard_text = leaderboard_font.render("Scores", True, (147, 112, 219))
-              screen.blit(leaderboard_text, [220, 50])
-              score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, (147, 112, 219))
-              screen.blit(score_text, [50, 100])
+              leaderboard_text = leaderboard_font.render("Scores", True, WHITE)
+              screen.blit(leaderboard_text, [250, 50])
+              score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, WHITE)
+              screen.blit(score_text, [50, 120])
               
 
               if player2finished: 
                for i in range(6):
                     line = leaderboard_lines[i]
                     text = font.render(line, True, WHITE)
-                    screen.blit(text, (50,200 + i * 25))
+                    screen.blit(text, (50,220 + i * 25))
                
                score_text = font.render(Scoreprint, True, (147, 112, 219))
-               screen.blit(score_text, [50, 150])  
+               screen.blit(score_text, [50, 170])  
         
         #PLAYER 2====================================
             if player_num == 2:
@@ -641,27 +669,46 @@ def main():
                  Scoreprint = "Player1 Score: " +(score.split()[1])
                  player1finished = True
               
-              leaderboard_text = leaderboard_font.render("Scores", True, (147, 112, 219))
-              screen.blit(leaderboard_text, [220, 50])
-              score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, (147, 112, 219))
-              screen.blit(score_text, [50, 100])
+              leaderboard_text = leaderboard_font.render("Scores", True, WHITE)
+              screen.blit(leaderboard_text, [250, 50])
+              score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, WHITE)
+              screen.blit(score_text, [50, 120])
               
 
               if player1finished: 
                for i in range(6):
                     line = leaderboard_lines[i]
                     text = font.render(line, True, WHITE)
-                    screen.blit(text, (50,200 + i * 25))
+                    screen.blit(text, (50,220 + i * 25))
                
-               score_text = font.render(Scoreprint, True, (147, 112, 219))
-               screen.blit(score_text, [50, 150])  
+               score_text = font.render(Scoreprint, True, WHITE)
+               screen.blit(score_text, [50, 170])  
             #print("out of loop")
             
    
 
-        elif current_room_no == 0: 
-          start_time = time()
           # Get the dimensions of the image
+        elif current_room_no == 4:
+            elapsed_time = elapsed_time
+            countdown_text = font.render("Time Taken: " + str(f"{remaining_time:02}"), True, WHITE)
+            screen.blit(countdown_text, [screen_width - 250, 20])
+            background_image = pygame.image.load("home.jpeg")
+            image_width, image_height = background_image.get_size()
+    
+            # Calculate the scaling factors to fill the screen
+            scale_width = screen_width / image_width
+            scale_height = screen_height / image_height
+            scale = max(scale_width, scale_height)
+            
+            # Scale the image
+            background_image = pygame.transform.scale(background_image, (int(image_width * scale), int(image_height * scale)))
+            
+            # Get the dimensions of the scaled image
+            image_width, image_height = background_image.get_size()
+            
+            # Calculate the position to center the image on the screen
+            x = (screen_width - image_width) / 2
+            y = (screen_height - image_height) / 2
         else:
          elapsed_time = int(time() - start_time)
          remaining_time = max( elapsed_time, 0)
