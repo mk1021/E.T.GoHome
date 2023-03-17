@@ -577,8 +577,8 @@ def main():
          start_time = time() 
          elapsed_time = int(time() - start_time)
          remaining_time = max( elapsed_time, 0)
-         countdown_text = font.render("Time Taken: " + str(f"{remaining_time:02}"), True, WHITE)
-         screen.blit(countdown_text, [600, 20])
+         countdown_text = font.render("Time Taken: " + str(f"{remaining_time:03}"), True, WHITE)
+         screen.blit(countdown_text, [550, 20])
         
 
 
@@ -622,7 +622,7 @@ def main():
                 print (leaderboard)
 
          
-              client_socket.send(("Player1_Score: " + str(f"{remaining_time:02}")).encode())
+              client_socket.send(("Player1_Score: " + str(f"{remaining_time:03}")).encode())
               score = client_socket.recv(1024).decode()
                
               
@@ -633,7 +633,7 @@ def main():
               
               leaderboard_text = leaderboard_font.render("Scores", True, WHITE)
               screen.blit(leaderboard_text, [250, 50])
-              score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, WHITE)
+              score_text = font.render("Your Time : " + str(f"{remaining_time:03}"), True, WHITE)
               screen.blit(score_text, [50, 120])
               
 
@@ -650,7 +650,7 @@ def main():
             if player_num == 2:
               if i == 0:
                name = input("Enter your name: ")
-               client_socket.send(("serverName"+"/"+str(f"{remaining_time:02}")+"/"+name).encode())
+               client_socket.send(("serverName"+"/"+str(f"{remaining_time:03}")+"/"+name).encode())
                leaderboard_str= client_socket.recv(1024).decode()
                i += 1
 
@@ -660,7 +660,7 @@ def main():
                 print (leaderboard)
 
          
-              client_socket.send(("Player2_Score: " + str(f"{remaining_time:02}")).encode())
+              client_socket.send(("Player2_Score: " + str(f"{remaining_time:03}")).encode())
               score = client_socket.recv(1024).decode()
                
               
@@ -671,7 +671,7 @@ def main():
               
               leaderboard_text = leaderboard_font.render("Scores", True, WHITE)
               screen.blit(leaderboard_text, [250, 50])
-              score_text = font.render("Your Time : " + str(f"{remaining_time:02}"), True, WHITE)
+              score_text = font.render("Your Time : " + str(f"{remaining_time:03}"), True, WHITE)
               screen.blit(score_text, [50, 120])
               
 
@@ -690,7 +690,7 @@ def main():
           # Get the dimensions of the image
         elif current_room_no == 4:
             elapsed_time = elapsed_time
-            countdown_text = font.render("Time Taken: " + str(f"{remaining_time:02}"), True, WHITE)
+            countdown_text = font.render("Time Taken: " + str(f"{remaining_time:03}"), True, WHITE)
             screen.blit(countdown_text, [screen_width - 250, 20])
             background_image = pygame.image.load("home.jpeg")
             image_width, image_height = background_image.get_size()
@@ -712,7 +712,7 @@ def main():
         else:
          elapsed_time = int(time() - start_time)
          remaining_time = max( elapsed_time, 0)
-         countdown_text = font.render("Time Taken: " + str(f"{remaining_time:02}"), True, WHITE)
+         countdown_text = font.render("Time Taken: " + str(f"{remaining_time:03}"), True, WHITE)
          screen.blit(countdown_text, [screen_width - 250, 20])
          background_image = pygame.image.load("night-sky-with-full-moon_1048-4421.png")
          image_width, image_height = background_image.get_size()
