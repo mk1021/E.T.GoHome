@@ -36,6 +36,8 @@ pygame.display.set_icon(icon)
 start_time = 0
 time_offset = 0
 
+active = True
+
 pygame.font.init()
 font = pygame.font.Font(None, 36)
 
@@ -59,6 +61,9 @@ def UpdateTimeVal(value):
 
 
 
+    # Check if player collides with each circle and remove it if it does
+
+
 
 class Wall(pygame.sprite.Sprite):
     """This class represents the bar at the bottom that the player controls """
@@ -73,6 +78,26 @@ class Wall(pygame.sprite.Sprite):
         self.image = pygame.Surface([width, height])
         self.image.fill(color)
  
+        # Make our top-left corner the passed-in location.
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
+
+class PowerUp(pygame.sprite.Sprite):
+    """This class represents the bar at the bottom that the player controls """
+ 
+    def __init__(self, x, y, width, height, image_path):
+        """ Constructor function """
+
+        # Call the parent's constructor
+        super().__init__()
+
+        # Load the image
+        self.image = pygame.image.load(image_path).convert_alpha()
+
+        # Scale the image to the specified size
+        self.image = pygame.transform.scale(self.image, (width, height))
+
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
         self.rect.y = y
@@ -126,7 +151,7 @@ class Player(pygame.sprite.Sprite):
         self.change_x += x
         self.change_y += y
  
-    def move(self, walls):
+    def move(self, walls, addTime):
         """ Find a new position for the player """
         if self.change_x > 0:
             self.image = pygame.transform.scale(pygame.image.load(self.images['right']), (35, 35))
@@ -142,31 +167,54 @@ class Player(pygame.sprite.Sprite):
  
         # Did this update cause us to hit a wall?
         block_hit_list = pygame.sprite.spritecollide(self, walls, False)
-        i = 0 
+        powerup_hit_list =  pygame.sprite.spritecollide(self, addTime, False)
+
         for block in block_hit_list:
+            # If we are moving right, set our right side to the left side of
+            # the item we hit
+            if self.change_x > 0:
+                self.rect.right = block.rect.left
+            
+            else:
+                # Otherwise if we are moving left, do the opposite.
+                self.rect.left = block.rect.right
+                
+
+        for block in powerup_hit_list:
             print("collided")
             # If we are moving right, set our right side to the left side of
             # the item we hit
             if self.change_x > 0:
                 self.rect.right = block.rect.left
+                block.kill() 
             else:
                 # Otherwise if we are moving left, do the opposite.
                 self.rect.left = block.rect.right
+                block.kill()
             UpdateTimeVal(5)
-            i += 1 
- 
+
         # Move up/down
         self.rect.y += self.change_y
  
         # Check and see if we hit anything
         block_hit_list = pygame.sprite.spritecollide(self, walls, False)
         for block in block_hit_list:
-            print("collided2")
             # Reset our position based on the top/bottom of the object.
             if self.change_y > 0:
                 self.rect.bottom = block.rect.top
             else:
                 self.rect.top = block.rect.bottom
+
+        for block in powerup_hit_list:
+            print("collided2")
+            # Reset our position based on the top/bottom of the object.
+            if self.change_y > 0:
+                self.rect.bottom = block.rect.top
+                block.kill()
+            else:
+                self.rect.top = block.rect.bottom
+                block.kill()
+            UpdateTimeVal(5)
  
 
 class Room(object):
@@ -174,12 +222,12 @@ class Room(object):
  
     # Each room has a list of walls, and of enemy sprites.
     wall_list = None
-    enemy_sprites = None
+    addTime_list = None
  
     def __init__(self):
         """ Constructor, create our lists. """
         self.wall_list = pygame.sprite.Group()
-        self.enemy_sprites = pygame.sprite.Group()
+        self.addTime_list = pygame.sprite.Group()
 
 class Start(Room):
     """This creates all the walls in room 3"""
@@ -197,15 +245,19 @@ class Start(Room):
                  [20, 0, 760, 20, WHITE],
                  [20, 580, 760, 20, WHITE]
                 ]
+        addTime = [[273, 250, 5, 5, "icons8-add-time-32.png"],
+                ]
+        
+        for item in addTime:
+            addTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.addTime_list.add(addTime)
+        
         for item in walls:
             wall = Wall(item[0], item[1], item[2], item[3], item[4])
             self.wall_list.add(wall)
-
-    def draw(self, screen):
-        # Blit the background image onto the screen surface
-        screen.blit(self.background, (0, 0))
-        # Draw the walls
-        self.wall_list.draw(screen)
+          
+      
+    
  
 class Room1(Room):
     """This creates all the walls in room 1"""
@@ -222,6 +274,13 @@ class Room1(Room):
                  [20, 580, 760, 20, WHITE],
                  [390, 100, 20, 400, BLUE]
                 ]
+        addTime = [[273, 250, 35, 35, "icons8-add-time-32.png"],
+                 [593, 450, 35, 35,"icons8-add-time-32.png" ],
+                ]
+        
+        for item in addTime:
+            addTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.addTime_list.add(addTime)
  
         # Loop through the list. Create the wall, add it to the list
         for item in walls:
@@ -247,6 +306,8 @@ class Room2(Room):
         for item in walls:
             wall = Wall(item[0], item[1], item[2], item[3], item[4])
             self.wall_list.add(wall)
+
+        
 
 class Room3(Room):
     """This creates all the walls in room 3"""
@@ -575,7 +636,7 @@ def main():
 
         # --- Game Logic ---
  
-        player.move(current_room.wall_list)
+        player.move(current_room.wall_list,current_room.addTime_list)
  
         if player.rect.x < -15:
             if current_room_no == 0:
@@ -631,6 +692,7 @@ def main():
         screen.blit(background_image, (x, y))
         movingsprites.draw(screen)
         current_room.wall_list.draw(screen)
+        current_room.addTime_list.draw(screen)
 
         if current_room_no == 0:
          while not connected:
