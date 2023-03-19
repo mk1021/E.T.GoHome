@@ -213,7 +213,7 @@ class Player(pygame.sprite.Sprite):
         self.change_x += x
         self.change_y += y
  
-    def move(self, walls, addTime, freeze):
+    def move(self, walls, addTime, freeze, subTime):
         """ Find a new position for the player """
         global collide
         collide = False 
@@ -232,6 +232,7 @@ class Player(pygame.sprite.Sprite):
         # Did this update cause us to hit a wall?
         block_hit_list = pygame.sprite.spritecollide(self, walls, False)
         powerup_hit_list =  pygame.sprite.spritecollide(self, addTime, False)
+        subtime_hit_list =  pygame.sprite.spritecollide(self, subTime, False)
         freeze_hit_list =  pygame.sprite.spritecollide(self, freeze, False)
 
         for block in block_hit_list:
@@ -276,6 +277,21 @@ class Player(pygame.sprite.Sprite):
                 client_socket.send("Freeze2".encode())
                 collide = True
 
+        for block in subtime_hit_list:
+            print("collided")
+            # If we are moving right, set our right side to the left side of
+            # the item we hit
+            if self.change_x > 0:
+                self.rect.right = block.rect.left
+                block.kill() 
+            else:
+                # Otherwise if we are moving left, do the opposite.
+                self.rect.left = block.rect.right
+                block.kill()
+            if player_num == 1:
+                UpdateTimeVal(-5)
+            elif player_num == 2:
+                UpdateTimeVal(-5)
 
  
 
@@ -321,6 +337,21 @@ class Player(pygame.sprite.Sprite):
                 client_socket.send("Freeze2".encode())
                 collide = True
 
+        for block in powerup_hit_list:
+            print("collided2")
+            # Reset our position based on the top/bottom of the object.
+            if self.change_y > 0:
+                self.rect.bottom = block.rect.top
+                block.kill()
+            else:
+                self.rect.top = block.rect.bottom
+                block.kill()
+            print (player_num)
+            if player_num == 1:
+                UpdateTimeVal(-5)
+            elif player_num == 2:
+                UpdateTimeVal(-5)
+
             
 
 
@@ -331,12 +362,14 @@ class Room(object):
     # Each room has a list of walls, and of enemy sprites.
     wall_list = None
     addTime_list = None
+    subTime_list = None
     freeze_list = None
  
     def __init__(self):
         """ Constructor, create our lists. """
         self.wall_list = pygame.sprite.Group()
         self.addTime_list = pygame.sprite.Group()
+        self.subTime_list = pygame.sprite.Group()
         self.freeze_list = pygame.sprite.Group()
 
 class Start(Room):
@@ -355,14 +388,6 @@ class Start(Room):
                  [20, 0, 760, 20, WHITE],
                  [20, 580, 760, 20, WHITE]
                 ]
-        addTime = [[273, 250, 5, 5, "icons8-add-time-32.png"],
-                ]
-        
-
-        
-        for item in addTime:
-            addTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
-            self.addTime_list.add(addTime)
         
         for item in walls:
             wall = Wall(item[0], item[1], item[2], item[3], item[4])
@@ -390,13 +415,21 @@ class Room1(Room):
                  [393, 450, 35, 35,"icons8-add-time-32.png" ],
                 ]
         
-        freeze = [[357, 490, 35, 35, "alien.png"],
-                  [357, 490, 35, 35, "alien.png"]
+        subTime = [[363, 470, 35, 35, "clock.png"],
+                 [123, 450, 35, 35,"clock.png" ],
+                ]
+        
+        freeze = [[357, 490, 35, 35, "ufo.png"],
+                  [457, 290, 35, 35, "ufo.png"],
                 ]
         
         for item in addTime:
             addTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
             self.addTime_list.add(addTime)
+
+        for item in subTime:
+            subTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.subTime_list.add(subTime)
 
         for item in freeze:
             freeze = PowerUp(item[0], item[1], item[2], item[3], item[4])
@@ -688,7 +721,7 @@ def main():
 
         # --- Game Logic ---
  
-        player.move(current_room.wall_list,current_room.addTime_list, current_room.freeze_list)
+        player.move(current_room.wall_list,current_room.addTime_list, current_room.freeze_list, current_room.subTime_list)
  
         if player.rect.x < -15:
             if current_room_no == 0:
@@ -745,6 +778,7 @@ def main():
         movingsprites.draw(screen)
         current_room.wall_list.draw(screen)
         current_room.addTime_list.draw(screen)
+        current_room.subTime_list.draw(screen)
         current_room.freeze_list.draw(screen)
 
         if current_room_no == 0:
