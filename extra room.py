@@ -3,15 +3,18 @@ import socket
 from time import time
 from pygame.locals import *
 from pygame import mixer
+import random
  
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-BLUE = (0, 0, 255)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
+BLUE = (30,144,255)
+GREEN = (46, 139, 87)
+RED = (138, 43, 226)
 PURPLE = (255, 0, 255)
 PINK = (255, 192, 203)
 DEEP_PINK = (255, 20, 147)
+ORANGE = (255, 228, 181)
+RED2 = (205, 92, 92)
 font_size = 30
 
 # Icon                             
@@ -38,6 +41,46 @@ class Wall(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
+
+class MovingWall(pygame.sprite.Sprite):
+    """This class represents the bar at the bottom that the player controls """
+ 
+    change_y = 0
+
+    def __init__(self, x, y, width, height, color):
+        """ Constructor function """
+ 
+        # Call the parent's constructor
+        super().__init__()
+ 
+        # Make a BLUE wall, of the size specified in the parameters
+        self.image = pygame.Surface([width, height])
+        self.image.fill(color)
+ 
+        # Make our top-left corner the passed-in location.
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
+
+    def changespeed(self, y):
+        """ Change the speed of the player. Called with a keypress. """
+        self.change_y += y
+
+    def move(self, walls):
+        """ Find a new position for the player """
+ 
+        # Move up/down
+        self.rect.y += self.change_y
+ 
+        # Check and see if we hit anything
+        block_hit_list = pygame.sprite.spritecollide(self, walls, False)
+        for block in block_hit_list:
+ 
+            # Reset our position based on the top/bottom of the object.
+            if self.change_y > 0:
+                self.rect.bottom = block.rect.top
+            else:
+                self.rect.top = block.rect.bottom
 
 class Player(pygame.sprite.Sprite):
     """ This class represents the bar at the bottom that the
@@ -130,6 +173,7 @@ class Room1(Room):
         for item in walls:
             wall = Wall(item[0], item[1], item[2], item[3], item[4])
             self.wall_list.add(wall)
+
  
  
 class Room2(Room):
@@ -178,7 +222,7 @@ class Room3(Room):
             self.wall_list.add(wall)
 
 class Room4(Room):
-    """This creates all the walls in room 1"""
+    """This creates all the walls in room 4"""
     def __init__(self):
         super().__init__()
         # Make the walls. (x_pos, y_pos, width, height)
@@ -205,6 +249,86 @@ class Room4(Room):
             wall = Wall(item[0], item[1], item[2], item[3], item[4])
             self.wall_list.add(wall)
 
+class Room5(Room):
+    """This creates all the walls in room 5"""
+    def __init__(self):
+        super().__init__()
+        # Make the walls. (x_pos, y_pos, width, height)
+ 
+        # This is a list of walls. Each is in the form [x, y, width, height]
+        walls = [[0, -100, 20, 250, WHITE],
+                 [0, 400, 20, 250, WHITE],
+                 [780, -100, 20, 250, WHITE],
+                 [780, 400, 20, 250, WHITE],
+                 [20, 0, 760, 20, WHITE],
+                 [20, 580, 760, 20, WHITE],
+                 [100, 80, 680, 20, ORANGE],
+                 [100, 500, 680, 20, ORANGE],
+                 [100, 100, 20, 150, ORANGE],
+                 [100, 350, 20, 150, ORANGE],
+                 [220, 100, 20, 250, ORANGE],
+                 [330, 250, 20, 250, ORANGE],
+                 [440, 100, 20, 250, ORANGE],
+                 [550, 250, 20, 250, ORANGE],
+                 [660, 100, 20, 250, ORANGE],
+                ]
+ 
+        # Loop through the list. Create the wall, add it to the list
+        for item in walls:
+            wall = Wall(item[0], item[1], item[2], item[3], item[4])
+            self.wall_list.add(wall)
+
+class Room6(Room):
+    """This creates all the walls in room 6"""
+
+    change_y = 0
+
+    def __init__(self):
+        super().__init__()
+        # Make the walls. (x_pos, y_pos, width, height)
+ 
+        # This is a list of walls. Each is in the form [x, y, width, height]
+        walls = [[0, -100, 20, 250, WHITE],
+                 [0, 400, 20, 250, WHITE],
+                 [780, -100, 20, 250, WHITE],
+                 [780, 400, 20, 250, WHITE],
+                 [20, 0, 760, 20, WHITE],
+                 [20, 580, 760, 20, WHITE],
+                ]
+ 
+        # Loop through the list. Create the wall, add it to the list
+        for item in walls:
+            wall = Wall(item[0], item[1], item[2], item[3], item[4])
+            self.wall_list.add(wall)
+
+        for x in range(100, 800, 100):
+            for y in range(20, 451, 360):
+                wall = Wall(x, y, 20, 200, RED2)
+                self.wall_list.add(wall)
+
+    #def changespeed(self, y):
+    #    """ Change the speed of the player. Called with a keypress. """
+    #    self.change_y += y
+    #    Room6.changespeed(0, 5)
+    #    Room6.changespeed(0, -5)
+#
+    #def move(self, walls):
+    #    """ Find a new position for the player """
+ #
+    #    # Move up/down
+    #    self.rect.y += self.change_y
+ #
+    #    # Check and see if we hit anything
+    #    block_hit_list = pygame.sprite.spritecollide(self, walls, False)
+    #    for block in block_hit_list:
+ #
+    #        # Reset our position based on the top/bottom of the object.
+    #        if self.change_y > 0:
+    #            self.rect.bottom = block.rect.top
+    #        else:
+    #            self.rect.top = block.rect.bottom
+
+
 class Leaderboard(Room):
      """This creates all the walls in room 3"""
      def __init__(self):
@@ -227,7 +351,7 @@ class Leaderboard(Room):
             self.wall_list.add(wall)
 
 
-class Room5(Room):
+class Room7(Room):
     """This creates all the walls in room 2"""
     def __init__(self):
         super().__init__()
@@ -257,7 +381,8 @@ def main():
     player = Player(50, 50)
     movingsprites = pygame.sprite.Group()
     movingsprites.add(player)
- 
+
+
     rooms = []
  
     room = Room1()
@@ -272,15 +397,21 @@ def main():
     room = Room4()
     rooms.append(room)
 
+    room = Room5()
+    rooms.append(room)
+
+    room = Room6()
+    rooms.append(room)
+
     room = Leaderboard()
     rooms.append(room)
 
-    room = Room5()
+    room = Room7()
     rooms.append(room)
  
     current_room_no = 0
     current_room = rooms[current_room_no]
- 
+
     clock = pygame.time.Clock()
  
     done = False
@@ -362,13 +493,22 @@ def main():
                 current_room_no = 5
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
+            elif current_room_no == 5:
+                current_room_no = 6
+                current_room = rooms[current_room_no]
+                player.rect.x = 0
+            elif current_room_no == 6:
+                current_room_no = 7
+                current_room = rooms[current_room_no]
+                player.rect.x = 0
             else:
                 current_room_no = 0
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
-        if current_room_no == 4:
+        if current_room_no == 6:
                     game_state = "game_over"
-        
+
+
  
         # --- Drawing ---
         screen.fill(BLACK)
@@ -376,7 +516,7 @@ def main():
         current_room.wall_list.draw(screen)
 
           # Draw the countdown timer
-        if current_room_no == 4:
+        if current_room_no == 6:
             elapsed_time = elapsed_time
             #         >>------------- TCP settings ------------------<<
             # Set up the TCP client socket
