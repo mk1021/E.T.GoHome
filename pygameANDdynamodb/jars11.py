@@ -118,7 +118,7 @@ def receive():
             global full_ready, is_player1, is_player2, is_player1_ready, is_player2_ready 
             global connected, ready_num, player_num
             data = client_socket.recv(1024).decode()
-            print(data)
+          #  print(data)
             while not twoplayer:
               if data.startswith("player"):
                   player_num = int(data.split()[1])
@@ -1088,7 +1088,7 @@ def main():
              if a == 0:
                  time_freeze = UpdateTime()
                  a += 1
-                 while (UpdateTime() != (time_freeze+10)):
+                 while (UpdateTime() < (time_freeze+10)):
                      player.changespeed(0, 0)
              a = 0
              player2_freeze = False
@@ -1098,7 +1098,7 @@ def main():
              if a == 0:
                  time_freeze = UpdateTime()
                  a += 1
-                 while (UpdateTime() != (time_freeze+5)):
+                 while (UpdateTime() < (time_freeze+5)):
                      print (time_freeze)
                      player.changespeed(0, 0)
              a = 0
