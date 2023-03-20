@@ -412,16 +412,16 @@ class Room1(Room):
                  [20, 580, 760, 20, WHITE],
                  [390, 100, 20, 400, BLUE]
                 ]
-        addTime = [[273, 250, 35, 35, "icons8-add-time-32.png"],
-                 [393, 450, 35, 35,"icons8-add-time-32.png" ],
+        addTime = [[255, 105, 40, 40, "icons8-add-time-32.png"],
+                 [255, 455, 40, 40,"icons8-add-time-32.png" ],
                 ]
         
-        subTime = [[363, 470, 35, 35, "clock.png"],
-                 [123, 450, 35, 35,"clock.png" ],
+        subTime = [[505, 180, 40, 40, "clock.png"],
+                 [505, 380, 40, 40,"clock.png" ],
                 ]
         
-        freeze = [[357, 490, 35, 35, "ufo.png"],
-                  [457, 290, 35, 35, "ufo.png"],
+        freeze = [[255, 280, 40, 40, "ufo.png"],
+                  [555, 280, 40, 40, "ufo.png"],
                 ]
         
         for item in addTime:
@@ -457,6 +457,30 @@ class Room2(Room):
                  [590, 20, 20, 500, GREEN]
                 ]
  
+        addTime = [[273, 250, 35, 35, "icons8-add-time-32.png"],
+                 [393, 450, 35, 35,"icons8-add-time-32.png" ],
+                ]
+        
+        subTime = [[363, 470, 35, 35, "clock.png"],
+                 [123, 450, 35, 35,"clock.png" ],
+                ]
+        
+        freeze = [[357, 490, 35, 35, "ufo.png"],
+                  [457, 290, 35, 35, "ufo.png"],
+                ]
+        
+        for item in addTime:
+            addTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.addTime_list.add(addTime)
+
+        for item in subTime:
+            subTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.subTime_list.add(subTime)
+
+        for item in freeze:
+            freeze = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.freeze_list.add(freeze)
+
         for item in walls:
             wall = Wall(item[0], item[1], item[2], item[3], item[4])
             self.wall_list.add(wall)
@@ -489,6 +513,31 @@ class Room3(Room):
             wall = Wall(x, 200, 10, 200, WHITE)
             self.wall_list.add(wall)
 
+        addTime = [[273, 250, 35, 35, "icons8-add-time-32.png"],
+                 [393, 450, 35, 35,"icons8-add-time-32.png" ],
+                ]
+        
+        subTime = [[363, 470, 35, 35, "clock.png"],
+                 [123, 450, 35, 35,"clock.png" ],
+                ]
+        
+        freeze = [[357, 490, 35, 35, "ufo.png"],
+                  [457, 290, 35, 35, "ufo.png"],
+                ]
+        
+        for item in addTime:
+            addTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.addTime_list.add(addTime)
+
+        for item in subTime:
+            subTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.subTime_list.add(subTime)
+
+        for item in freeze:
+            freeze = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.freeze_list.add(freeze)
+
+
 class Room4(Room):
     """This creates all the walls in room 1"""
     def __init__(self):
@@ -512,6 +561,30 @@ class Room4(Room):
                  [620, 565, 15, 15, DEEP_PINK],
                 ]
  
+        addTime = [[273, 250, 35, 35, "icons8-add-time-32.png"],
+                 [393, 450, 35, 35,"icons8-add-time-32.png" ],
+                ]
+        
+        subTime = [[363, 470, 35, 35, "clock.png"],
+                 [123, 450, 35, 35,"clock.png" ],
+                ]
+        
+        freeze = [[357, 490, 35, 35, "ufo.png"],
+                  [457, 290, 35, 35, "ufo.png"],
+                ]
+        
+        for item in addTime:
+            addTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.addTime_list.add(addTime)
+
+        for item in subTime:
+            subTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.subTime_list.add(subTime)
+
+        for item in freeze:
+            freeze = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.freeze_list.add(freeze)
+
         # Loop through the list. Create the wall, add it to the list
         for item in walls:
             wall = Wall(item[0], item[1], item[2], item[3], item[4])
@@ -541,16 +614,17 @@ class Room5(Room):
                  [660, 100, 20, 250, ORANGE],
                 ]
             
-        addTime = [[220, 415, 20, 20, "icons8-add-time-32.png"],
-                   [330, 165, 20, 20, "icons8-add-time-32.png" ],
-                   [440, 415, 20, 20, "icons8-add-time-32.png" ],
-                   [550, 165, 20, 20, "icons8-add-time-32.png" ],
-                   [660, 415, 20, 20, "icons8-add-time-32.png" ],
+        addTime = [[210, 405, 40, 40, "icons8-add-time-32.png"],
+                   [320, 155, 40, 40, "icons8-add-time-32.png" ],
+                   [430, 405, 40, 40, "icons8-add-time-32.png" ],
+                   [540, 155, 40, 40, "icons8-add-time-32.png" ],
+                   [650, 405, 40, 40, "icons8-add-time-32.png" ],
+                    ]
         
-        subTime = [[740, 40, 20, 20, "clock.png"],
+        subTime = [[730, 530, 40, 40, "clock.png"],
                   ]
         
-        freeze = [[740, 540, 35, 35, "ufo.png"],
+        freeze = [[730, 30, 40, 40, "ufo.png"],
                  ]
 
         for item in addTime:
@@ -857,7 +931,7 @@ def main():
 
 
           # Draw the countdown timer
-        elif current_room_no == 6:
+        elif current_room_no == 7:
             background_image = pygame.image.load("Scores.jpg")
             image_width, image_height = background_image.get_size()
        
