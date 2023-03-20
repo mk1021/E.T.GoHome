@@ -9,15 +9,15 @@ import threading
  
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-BLUE = (30, 144, 255)
-GREEN = (46, 139, 87)
+BLUE = (65, 105, 225)
+GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 PURPLE = (255, 0, 255)
-VIOLET = (138, 43, 226)
+VIOLET = (138,43,226)
 DEEP_PINK = (255, 20, 147)
-ORANGE = (255, 228, 181)
-RED2 = (205, 92, 92)
 font_size = 30
+global player_num
+
 
 
 
@@ -48,10 +48,9 @@ def UpdateStartTime(value):
     start_time = value
 
 def UpdateTime():
-    global start_time
+    global start_time,  elapsed_time
     elapsed_time = int(time() - start_time + time_offset)
-    countdown_text = font.render("Time Taken: " + str(f"{elapsed_time:03}"), True, WHITE)
-    return countdown_text
+    return elapsed_time 
 
 def UpdateTimeVal(value):
     global start_time
@@ -104,6 +103,44 @@ class PowerUp(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
+
+def receive():
+    # Wait for start signal from server
+    twoplayer = False
+    while not twoplayer:
+            global full_ready, is_player1, is_player2, is_player1_ready, is_player2_ready 
+            global connected, ready_num, level_selected, start1, start2, current_level, player_num
+            global P1Score, P2Score, GameOver1, GameOver2
+            data = client_socket.recv(1024).decode()
+            print(data + "wrong")
+            if data == "fullready":
+                full_ready = True
+
+            if data == "start":
+                in_game = True
+                #connected = True
+
+            elif data.startswith("player"):
+                player_num = int(data.split()[1])
+                print(f"hahahha{player_num}")
+                if player_num == 1:
+                    is_player1 = True
+                    #is_player2 = False 
+                    #client_socket.send("Ready 1")
+                    connected = True
+                    twoplayer = True
+                else:
+                    #is_player1 = False
+                    is_player2 = True
+                    #client_socket.send("Ready 2")
+                    connected = True
+                    twoplayer = True
+
+            elif data == "quit":
+                print("receive quit")
+                break
+
+
 
 class Player(pygame.sprite.Sprite):
     """ This class represents the bar at the bottom that the
@@ -216,7 +253,7 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.rect.top = block.rect.bottom
                 block.kill()
-            UpdateTimeVal(5)
+
  
 
 class Room(object):
@@ -365,44 +402,6 @@ class Room4(Room):
             wall = Wall(item[0], item[1], item[2], item[3], item[4])
             self.wall_list.add(wall)
 
-class Room5(Room):
-    """This creates all the walls in room 5"""
-    def __init__(self):
-        super().__init__()
-        # Make the walls. (x_pos, y_pos, width, height)
- 
-        # This is a list of walls. Each is in the form [x, y, width, height]
-        walls = [[0, -100, 20, 250, WHITE],
-                 [0, 400, 20, 250, WHITE],
-                 [780, -100, 20, 250, WHITE],
-                 [780, 400, 20, 250, WHITE],
-                 [20, 0, 760, 20, WHITE],
-                 [20, 580, 760, 20, WHITE],
-                 [100, 80, 680, 20, ORANGE],
-                 [100, 500, 680, 20, ORANGE],
-                 [100, 100, 20, 150, ORANGE],
-                 [100, 350, 20, 150, ORANGE],
-                 [220, 100, 20, 250, ORANGE],
-                 [330, 250, 20, 250, ORANGE],
-                 [440, 100, 20, 250, ORANGE],
-                 [550, 250, 20, 250, ORANGE],
-                 [660, 100, 20, 250, ORANGE],
-                ]
-        addTime = [[220, 415, 20, 20, "icons8-add-time-32.png"],
-                   [330, 165, 20, 20, "icons8-add-time-32.png" ],
-                   [440, 415, 20, 20, "icons8-add-time-32.png" ],
-                   [550, 165, 20, 20, "icons8-add-time-32.png" ],
-                   [660, 415, 20, 20, "icons8-add-time-32.png" ],
-                  ]
-        
-        for item in addTime:
-            addTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
-            self.addTime_list.add(addTime)
- 
-        # Loop through the list. Create the wall, add it to the list
-        for item in walls:
-            wall = Wall(item[0], item[1], item[2], item[3], item[4])
-            self.wall_list.add(wall)
 
 class Leaderboard(Room):
      """This creates all the walls in room 3"""
@@ -447,7 +446,7 @@ class PlayerScores(Room):
             self.wall_list.add(wall)
 
 
-class Room6(Room):
+class Room5(Room):
     """This creates all the walls in room 2"""
     def __init__(self):
         super().__init__()
@@ -460,83 +459,7 @@ class Room6(Room):
             self.wall_list.add(wall)
 
 
-def receive():
-    # Wait for start signal from server
-    twoplayer = False
-    while not twoplayer:
-            global full_ready, is_player1, is_player2, is_player1_ready, is_player2_ready 
-            global connected, ready_num, player_num, level_selected, start1, start2, current_level
-            global P1Score, P2Score, GameOver1, GameOver2
-            data = client_socket.recv(1024).decode()
-            print(data + "wrong")
-            if data == "fullready":
-                full_ready = True
 
-            if data == "start":
-                in_game = True
-                #connected = True
-
-            elif data.startswith("player"):
-                player_num = int(data.split()[1])
-                print(f"hahahha{player_num}")
-                if player_num == 1:
-                    is_player1 = True
-                    #is_player2 = False
-                    #client_socket.send("Ready 1")
-                    connected = True
-                    twoplayer = True
-                else:
-                    #is_player1 = False
-                    is_player2 = True
-                    #client_socket.send("Ready 2")
-                    connected = True
-                    twoplayer = True
-
-            elif data.startswith("ready"):
-                ready_num = int(data.split()[1])
-                if ready_num == 1:
-                    is_player1_ready = True
-                    print("received player1 ready")
-                    #client_socket.send("Ready 1")
-                    #connected = True
-                else:
-                    is_player2_ready = True
-                    print("received player2 ready")
-                    #client_socket.send("Ready 2")
-                    #connected = True
-            elif data.startswith("levelreceive"):
-                start_num = int(data.split()[1])
-                print("receive levelreceive")
-                if start_num == 1:
-                    start1 = True   # -------------------need to start from here, start1 and 2 should determined by sending signals
-                elif start_num == 2:
-                    start2 = True
-            
-            elif data.startswith("level"):
-                    print("recievedlevel")
-                    current_level = int(data.split()[1])
-                    client_socket.send("LevelS2".encode())
-                    level_selected = True
-
-            elif data.isdigit():
-                if is_player1:
-                    P2Score = int(data)
-                    print(P2Score)
-                    print(" ")
-                elif is_player2:
-                    P1Score = int(data)
-                    print(P1Score)
-                    print(" ")
-
-            elif data == "2GameOver":
-                GameOver2 = True
-            
-            elif data == "1GameOver":
-                GameOver1 = True
-
-            elif data == "quit":
-                print("receive quit")
-                break
 
 connected = False
 is_player1 = False
@@ -580,16 +503,13 @@ def main():
     room = Room4()
     rooms.append(room)
 
-    room = Room5()
-    rooms.append(room)
-
     room = PlayerScores()
     rooms.append(room)
 
     room = Leaderboard()
     rooms.append(room)
 
-    room = Room6()
+    room = Room5()
     rooms.append(room)
  
     current_room_no = 0
@@ -607,6 +527,8 @@ def main():
     i = 0
     x = 0
     y = 0
+    r = 0
+    q = 0
     player2finished = False
     player1finished = False
 
@@ -724,15 +646,11 @@ def main():
                 current_room_no = 7
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
-            elif current_room_no == 7:
-                current_room_no = 8
-                current_room = rooms[current_room_no]
-                player.rect.x = 0
             else:
                 current_room_no = 0
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
-        if current_room_no == 8:
+        if current_room_no == 7:
                     game_state = "game_over"
  
         # --- Drawing ---
@@ -756,7 +674,7 @@ def main():
 
 
           # Draw the countdown timer
-        elif current_room_no == 7:
+        elif current_room_no == 6:
             background_image = pygame.image.load("Scores.jpg")
             image_width, image_height = background_image.get_size()
        
@@ -775,17 +693,21 @@ def main():
             x = (screen_width - image_width) / 2
             y = (screen_height - image_height) / 2
  
-            if x == 0:
+            if q == 0:
              leaderboard = " "
-             x+=1
-            elapsed_time = elapsed_time
+             timef = timefinal
+             timef = timef
+             q+=1
+            print("in room")
+            print(player_num)
+            
             #         >>------------- TCP settings ------------------<< 
       
         #PLAYER 1====================================
             if player_num == 1:
               if i == 0:
                name = input("Enter your name: ")
-               client_socket.send(("serverName"+"/"+str(f"{remaining_time:03}")+"/"+name).encode())
+               client_socket.send(("serverName"+"/"+str(f"{timef:03}")+"/"+name).encode())
                leaderboard_str= client_socket.recv(1024).decode()
                i += 1
 
@@ -795,7 +717,7 @@ def main():
                 print (leaderboard)
 
          
-              client_socket.send(("Player1_Score: " + str(f"{remaining_time:03}")).encode())
+              client_socket.send(("Player1_Score: " + str(f"{timef:03}")).encode())
               score = client_socket.recv(1024).decode()
                
               
@@ -805,7 +727,7 @@ def main():
                  player2finished = True
               
       
-              score_text = font.render("Your Time : " + str(f"{remaining_time:03}"), True, WHITE)
+              score_text = font.render("Your Time : " + str(f"{timef:03}"), True, WHITE)
               screen.blit(score_text, [70, 200])
               
 
@@ -822,7 +744,7 @@ def main():
             if player_num == 2:
               if i == 0:
                name = input("Enter your name: ")
-               client_socket.send(("serverName"+"/"+str(f"{remaining_time:03}")+"/"+name).encode())
+               client_socket.send(("serverName"+"/"+str(f"{timef:03}")+"/"+name).encode())
                leaderboard_str= client_socket.recv(1024).decode()
                i += 1
 
@@ -832,7 +754,7 @@ def main():
                 print (leaderboard)
 
          
-              client_socket.send(("Player2_Score: " + str(f"{remaining_time:03}")).encode())
+              client_socket.send(("Player2_Score: " + str(f"{timef:03}")).encode())
               score = client_socket.recv(1024).decode()
                
               
@@ -842,7 +764,7 @@ def main():
                  player1finished = True
               
 
-              score_text = font.render("Your Time : " + str(f"{remaining_time:03}"), True, WHITE)
+              score_text = font.render("Your Time : " + str(f"{timef:03}"), True, WHITE)
               screen.blit(score_text, [70, 200])
               
 
@@ -859,9 +781,13 @@ def main():
    
 
           # Get the dimensions of the image
-        elif current_room_no == 6:
-            elapsed_time = elapsed_time
-            countdown_text = font.render("Time Taken: " + str(f"{remaining_time:03}"), True, WHITE)
+        elif current_room_no == 5:
+            if r == 0:
+             leaderboard = " "
+             timefinal = UpdateTime() 
+             timefinal = timefinal
+             r+=1
+            countdown_text = font.render("Time Taken: " + str(f"{timefinal:03}"), True, WHITE)
             screen.blit(countdown_text, [screen_width - 250, 20])
             background_image = pygame.image.load("home.jpeg")
             image_width, image_height = background_image.get_size()
@@ -884,7 +810,7 @@ def main():
          #elapsed_time = int(time() - start_time)
          #remaining_time = max( elapsed_time, 0)
          #countdown_text = font.render("Time Taken: " + str(f"{remaining_time:03}"), True, WHITE)
-         countdown_text = UpdateTime()
+         countdown_text = font.render("Time Taken: " + str(f"{UpdateTime():03}"), True, WHITE)
          screen.blit(countdown_text, [screen_width - 250, 20])
          background_image = pygame.image.load("background.jpg")
          image_width, image_height = background_image.get_size()

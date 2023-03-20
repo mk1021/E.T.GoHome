@@ -9,15 +9,15 @@ import threading
  
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-BLUE = (30, 144, 255)
-GREEN = (46, 139, 87)
+BLUE = (65, 105, 225)
+GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 PURPLE = (255, 0, 255)
-VIOLET = (138, 43, 226)
+VIOLET = (138,43,226)
 DEEP_PINK = (255, 20, 147)
-ORANGE = (255, 228, 181)
-RED2 = (205, 92, 92)
 font_size = 30
+
+
 
 
 
@@ -37,6 +37,7 @@ pygame.display.set_icon(icon)
 
 start_time = 0
 time_offset = 0
+i = 0
 
 active = True
 
@@ -48,10 +49,9 @@ def UpdateStartTime(value):
     start_time = value
 
 def UpdateTime():
-    global start_time
+    global start_time,  elapsed_time
     elapsed_time = int(time() - start_time + time_offset)
-    countdown_text = font.render("Time Taken: " + str(f"{elapsed_time:03}"), True, WHITE)
-    return countdown_text
+    return elapsed_time 
 
 def UpdateTimeVal(value):
     global start_time
@@ -62,6 +62,7 @@ def UpdateTimeVal(value):
     return countdown_text
 
 
+#def Freeze():
 
     # Check if player collides with each circle and remove it if it does
 
@@ -104,6 +105,65 @@ class PowerUp(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
+
+def receive():
+    # Wait for start signal from server
+    done = False
+    twoplayer = False
+    global data, player1_freeze, player2_freeze 
+    player1_freeze = False
+    player2_freeze = False
+    while not done:
+            global full_ready, is_player1, is_player2, is_player1_ready, is_player2_ready 
+            global connected, ready_num, player_num
+            data = client_socket.recv(1024).decode()
+            print(data)
+            while not twoplayer:
+              if data.startswith("player"):
+                  player_num = int(data.split()[1])
+                  if player_num == 1:
+                      is_player1 = True
+                      #is_player2 = False 
+                      #client_socket.send("Ready 1")
+                      connected = True
+                      twoplayer = True
+                  else:
+                      #is_player1 = False
+                      is_player2 = True
+                      #client_socket.send("Ready 2")
+                      connected = True
+                      twoplayer = True
+    
+              elif data.startswith("player"):
+                  player_num = int(data.split()[1])
+                  if player_num == 1:
+                      is_player1 = True
+                      #is_player2 = False 
+                      #client_socket.send("Ready 1")
+                      connected = True
+                      twoplayer = True
+                  else:
+                      #is_player1 = False
+                      is_player2 = True
+                      #client_socket.send("Ready 2")
+                      connected = True
+                      twoplayer = True
+    
+            if data.startswith("Player1_Freeze"):
+                 if player_num == 1:
+                   print("im frozen 1")
+                   player1_freeze = True 
+            if data.startswith("Player2_Freeze"):
+                 if player_num == 2:
+                   print("im frozen 2")
+                   player2_freeze = True 
+
+            elif data == "quit":
+                print("receive quit")
+                done = True
+                break
+
+
 
 class Player(pygame.sprite.Sprite):
     """ This class represents the bar at the bottom that the
@@ -153,8 +213,10 @@ class Player(pygame.sprite.Sprite):
         self.change_x += x
         self.change_y += y
  
-    def move(self, walls, addTime):
+    def move(self, walls, addTime, freeze, subTime):
         """ Find a new position for the player """
+        global collide
+        collide = False 
         if self.change_x > 0:
             self.image = pygame.transform.scale(pygame.image.load(self.images['right']), (35, 35))
         elif self.change_x < 0:
@@ -170,6 +232,8 @@ class Player(pygame.sprite.Sprite):
         # Did this update cause us to hit a wall?
         block_hit_list = pygame.sprite.spritecollide(self, walls, False)
         powerup_hit_list =  pygame.sprite.spritecollide(self, addTime, False)
+        subtime_hit_list =  pygame.sprite.spritecollide(self, subTime, False)
+        freeze_hit_list =  pygame.sprite.spritecollide(self, freeze, False)
 
         for block in block_hit_list:
             # If we are moving right, set our right side to the left side of
@@ -193,7 +257,43 @@ class Player(pygame.sprite.Sprite):
                 # Otherwise if we are moving left, do the opposite.
                 self.rect.left = block.rect.right
                 block.kill()
-            UpdateTimeVal(5)
+            if player_num == 1:
+                UpdateTimeVal(5)
+                print("player1 time")
+            elif player_num == 2:
+                UpdateTimeVal(5)
+                print("player2 time")
+
+        for block in freeze_hit_list:
+            # If we are moving right, set our right side to the left side of
+            # the item we hit
+            block.kill()
+            if player_num == 2:
+                print("player1 freeze")
+                client_socket.send("Freeze1".encode())
+                collide = True
+            if player_num == 1:
+                print("player2 freeze")
+                client_socket.send("Freeze2".encode())
+                collide = True
+
+        for block in subtime_hit_list:
+            print("collided")
+            # If we are moving right, set our right side to the left side of
+            # the item we hit
+            if self.change_x > 0:
+                self.rect.right = block.rect.left
+                block.kill() 
+            else:
+                # Otherwise if we are moving left, do the opposite.
+                self.rect.left = block.rect.right
+                block.kill()
+            if player_num == 1:
+                UpdateTimeVal(-5)
+            elif player_num == 2:
+                UpdateTimeVal(-5)
+
+ 
 
         # Move up/down
         self.rect.y += self.change_y
@@ -216,8 +316,45 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.rect.top = block.rect.bottom
                 block.kill()
-            UpdateTimeVal(5)
- 
+            print (player_num)
+            if player_num == 1:
+                UpdateTimeVal(5)
+                print("player1 time")
+            elif player_num == 2:
+                print("player2 time")
+                UpdateTimeVal(5)
+                print("player2 time")
+
+
+        for block in freeze_hit_list:
+            block.kill()
+            if player_num == 2:
+                print("player1 freeze")
+                client_socket.send("Freeze1".encode())
+                collide = True
+            if player_num == 1:
+                print("player2 freeze")
+                client_socket.send("Freeze2".encode())
+                collide = True
+
+        for block in powerup_hit_list:
+            print("collided2")
+            # Reset our position based on the top/bottom of the object.
+            if self.change_y > 0:
+                self.rect.bottom = block.rect.top
+                block.kill()
+            else:
+                self.rect.top = block.rect.bottom
+                block.kill()
+            print (player_num)
+            if player_num == 1:
+                UpdateTimeVal(-5)
+            elif player_num == 2:
+                UpdateTimeVal(-5)
+
+            
+
+
 
 class Room(object):
     """ Base class for all rooms. """
@@ -225,11 +362,15 @@ class Room(object):
     # Each room has a list of walls, and of enemy sprites.
     wall_list = None
     addTime_list = None
+    subTime_list = None
+    freeze_list = None
  
     def __init__(self):
         """ Constructor, create our lists. """
         self.wall_list = pygame.sprite.Group()
         self.addTime_list = pygame.sprite.Group()
+        self.subTime_list = pygame.sprite.Group()
+        self.freeze_list = pygame.sprite.Group()
 
 class Start(Room):
     """This creates all the walls in room 3"""
@@ -247,12 +388,6 @@ class Start(Room):
                  [20, 0, 760, 20, WHITE],
                  [20, 580, 760, 20, WHITE]
                 ]
-        addTime = [[273, 250, 5, 5, "icons8-add-time-32.png"],
-                ]
-        
-        for item in addTime:
-            addTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
-            self.addTime_list.add(addTime)
         
         for item in walls:
             wall = Wall(item[0], item[1], item[2], item[3], item[4])
@@ -277,12 +412,28 @@ class Room1(Room):
                  [390, 100, 20, 400, BLUE]
                 ]
         addTime = [[273, 250, 35, 35, "icons8-add-time-32.png"],
-                 [593, 450, 35, 35,"icons8-add-time-32.png" ],
+                 [393, 450, 35, 35,"icons8-add-time-32.png" ],
+                ]
+        
+        subTime = [[363, 470, 35, 35, "clock.png"],
+                 [123, 450, 35, 35,"clock.png" ],
+                ]
+        
+        freeze = [[357, 490, 35, 35, "ufo.png"],
+                  [457, 290, 35, 35, "ufo.png"],
                 ]
         
         for item in addTime:
             addTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
             self.addTime_list.add(addTime)
+
+        for item in subTime:
+            subTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.subTime_list.add(subTime)
+
+        for item in freeze:
+            freeze = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.freeze_list.add(freeze)
  
         # Loop through the list. Create the wall, add it to the list
         for item in walls:
@@ -365,44 +516,6 @@ class Room4(Room):
             wall = Wall(item[0], item[1], item[2], item[3], item[4])
             self.wall_list.add(wall)
 
-class Room5(Room):
-    """This creates all the walls in room 5"""
-    def __init__(self):
-        super().__init__()
-        # Make the walls. (x_pos, y_pos, width, height)
- 
-        # This is a list of walls. Each is in the form [x, y, width, height]
-        walls = [[0, -100, 20, 250, WHITE],
-                 [0, 400, 20, 250, WHITE],
-                 [780, -100, 20, 250, WHITE],
-                 [780, 400, 20, 250, WHITE],
-                 [20, 0, 760, 20, WHITE],
-                 [20, 580, 760, 20, WHITE],
-                 [100, 80, 680, 20, ORANGE],
-                 [100, 500, 680, 20, ORANGE],
-                 [100, 100, 20, 150, ORANGE],
-                 [100, 350, 20, 150, ORANGE],
-                 [220, 100, 20, 250, ORANGE],
-                 [330, 250, 20, 250, ORANGE],
-                 [440, 100, 20, 250, ORANGE],
-                 [550, 250, 20, 250, ORANGE],
-                 [660, 100, 20, 250, ORANGE],
-                ]
-        addTime = [[220, 415, 20, 20, "icons8-add-time-32.png"],
-                   [330, 165, 20, 20, "icons8-add-time-32.png" ],
-                   [440, 415, 20, 20, "icons8-add-time-32.png" ],
-                   [550, 165, 20, 20, "icons8-add-time-32.png" ],
-                   [660, 415, 20, 20, "icons8-add-time-32.png" ],
-                  ]
-        
-        for item in addTime:
-            addTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
-            self.addTime_list.add(addTime)
- 
-        # Loop through the list. Create the wall, add it to the list
-        for item in walls:
-            wall = Wall(item[0], item[1], item[2], item[3], item[4])
-            self.wall_list.add(wall)
 
 class Leaderboard(Room):
      """This creates all the walls in room 3"""
@@ -447,7 +560,7 @@ class PlayerScores(Room):
             self.wall_list.add(wall)
 
 
-class Room6(Room):
+class Room5(Room):
     """This creates all the walls in room 2"""
     def __init__(self):
         super().__init__()
@@ -460,83 +573,7 @@ class Room6(Room):
             self.wall_list.add(wall)
 
 
-def receive():
-    # Wait for start signal from server
-    twoplayer = False
-    while not twoplayer:
-            global full_ready, is_player1, is_player2, is_player1_ready, is_player2_ready 
-            global connected, ready_num, player_num, level_selected, start1, start2, current_level
-            global P1Score, P2Score, GameOver1, GameOver2
-            data = client_socket.recv(1024).decode()
-            print(data + "wrong")
-            if data == "fullready":
-                full_ready = True
 
-            if data == "start":
-                in_game = True
-                #connected = True
-
-            elif data.startswith("player"):
-                player_num = int(data.split()[1])
-                print(f"hahahha{player_num}")
-                if player_num == 1:
-                    is_player1 = True
-                    #is_player2 = False
-                    #client_socket.send("Ready 1")
-                    connected = True
-                    twoplayer = True
-                else:
-                    #is_player1 = False
-                    is_player2 = True
-                    #client_socket.send("Ready 2")
-                    connected = True
-                    twoplayer = True
-
-            elif data.startswith("ready"):
-                ready_num = int(data.split()[1])
-                if ready_num == 1:
-                    is_player1_ready = True
-                    print("received player1 ready")
-                    #client_socket.send("Ready 1")
-                    #connected = True
-                else:
-                    is_player2_ready = True
-                    print("received player2 ready")
-                    #client_socket.send("Ready 2")
-                    #connected = True
-            elif data.startswith("levelreceive"):
-                start_num = int(data.split()[1])
-                print("receive levelreceive")
-                if start_num == 1:
-                    start1 = True   # -------------------need to start from here, start1 and 2 should determined by sending signals
-                elif start_num == 2:
-                    start2 = True
-            
-            elif data.startswith("level"):
-                    print("recievedlevel")
-                    current_level = int(data.split()[1])
-                    client_socket.send("LevelS2".encode())
-                    level_selected = True
-
-            elif data.isdigit():
-                if is_player1:
-                    P2Score = int(data)
-                    print(P2Score)
-                    print(" ")
-                elif is_player2:
-                    P1Score = int(data)
-                    print(P1Score)
-                    print(" ")
-
-            elif data == "2GameOver":
-                GameOver2 = True
-            
-            elif data == "1GameOver":
-                GameOver1 = True
-
-            elif data == "quit":
-                print("receive quit")
-                break
 
 connected = False
 is_player1 = False
@@ -546,7 +583,12 @@ is_player2_ready = False
 
 def main():
     """ Main Program """
- 
+    global collide
+    collide = False 
+    global player2_freeze
+    player2_freeze = False 
+    global player1_freeze
+    player1_freeze = False 
     # Call this function so the Pygame library can initialize itself
     pygame.init()
  
@@ -580,16 +622,13 @@ def main():
     room = Room4()
     rooms.append(room)
 
-    room = Room5()
-    rooms.append(room)
-
     room = PlayerScores()
     rooms.append(room)
 
     room = Leaderboard()
     rooms.append(room)
 
-    room = Room6()
+    room = Room5()
     rooms.append(room)
  
     current_room_no = 0
@@ -601,12 +640,15 @@ def main():
 
     leaderboard_font = pygame.font.Font('freesansbold.ttf', 56)
     game_state = "playing"
-    mixer.init()
-    mixer.music.load('bensound-summer_mp3_music.mp3')
-    mixer.music.play() 
+    #mixer.init()
+    #mixer.music.load('bensound-summer_mp3_music.mp3')
+    #mixer.music.play() 
     i = 0
     x = 0
     y = 0
+    r = 0
+    q = 0
+    a = 0
     player2finished = False
     player1finished = False
 
@@ -679,7 +721,7 @@ def main():
 
         # --- Game Logic ---
  
-        player.move(current_room.wall_list,current_room.addTime_list)
+        player.move(current_room.wall_list,current_room.addTime_list, current_room.freeze_list, current_room.subTime_list)
  
         if player.rect.x < -15:
             if current_room_no == 0:
@@ -724,15 +766,11 @@ def main():
                 current_room_no = 7
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
-            elif current_room_no == 7:
-                current_room_no = 8
-                current_room = rooms[current_room_no]
-                player.rect.x = 0
             else:
                 current_room_no = 0
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
-        if current_room_no == 8:
+        if current_room_no == 7:
                     game_state = "game_over"
  
         # --- Drawing ---
@@ -740,6 +778,8 @@ def main():
         movingsprites.draw(screen)
         current_room.wall_list.draw(screen)
         current_room.addTime_list.draw(screen)
+        current_room.subTime_list.draw(screen)
+        current_room.freeze_list.draw(screen)
 
         if current_room_no == 0:
          while not connected:
@@ -756,7 +796,7 @@ def main():
 
 
           # Draw the countdown timer
-        elif current_room_no == 7:
+        elif current_room_no == 6:
             background_image = pygame.image.load("Scores.jpg")
             image_width, image_height = background_image.get_size()
        
@@ -775,17 +815,21 @@ def main():
             x = (screen_width - image_width) / 2
             y = (screen_height - image_height) / 2
  
-            if x == 0:
+            if q == 0:
              leaderboard = " "
-             x+=1
-            elapsed_time = elapsed_time
+             timef = timefinal
+             timef = timef
+             q+=1
+            print("in room")
+            print(player_num)
+            
             #         >>------------- TCP settings ------------------<< 
       
         #PLAYER 1====================================
             if player_num == 1:
               if i == 0:
                name = input("Enter your name: ")
-               client_socket.send(("serverName"+"/"+str(f"{remaining_time:03}")+"/"+name).encode())
+               client_socket.send(("serverName"+"/"+str(f"{timef:03}")+"/"+name).encode())
                leaderboard_str= client_socket.recv(1024).decode()
                i += 1
 
@@ -795,7 +839,7 @@ def main():
                 print (leaderboard)
 
          
-              client_socket.send(("Player1_Score: " + str(f"{remaining_time:03}")).encode())
+              client_socket.send(("Player1_Score: " + str(f"{timef:03}")).encode())
               score = client_socket.recv(1024).decode()
                
               
@@ -805,7 +849,7 @@ def main():
                  player2finished = True
               
       
-              score_text = font.render("Your Time : " + str(f"{remaining_time:03}"), True, WHITE)
+              score_text = font.render("Your Time : " + str(f"{timef:03}"), True, WHITE)
               screen.blit(score_text, [70, 200])
               
 
@@ -822,7 +866,7 @@ def main():
             if player_num == 2:
               if i == 0:
                name = input("Enter your name: ")
-               client_socket.send(("serverName"+"/"+str(f"{remaining_time:03}")+"/"+name).encode())
+               client_socket.send(("serverName"+"/"+str(f"{timef:03}")+"/"+name).encode())
                leaderboard_str= client_socket.recv(1024).decode()
                i += 1
 
@@ -832,7 +876,7 @@ def main():
                 print (leaderboard)
 
          
-              client_socket.send(("Player2_Score: " + str(f"{remaining_time:03}")).encode())
+              client_socket.send(("Player2_Score: " + str(f"{timef:03}")).encode())
               score = client_socket.recv(1024).decode()
                
               
@@ -842,7 +886,7 @@ def main():
                  player1finished = True
               
 
-              score_text = font.render("Your Time : " + str(f"{remaining_time:03}"), True, WHITE)
+              score_text = font.render("Your Time : " + str(f"{timef:03}"), True, WHITE)
               screen.blit(score_text, [70, 200])
               
 
@@ -859,9 +903,13 @@ def main():
    
 
           # Get the dimensions of the image
-        elif current_room_no == 6:
-            elapsed_time = elapsed_time
-            countdown_text = font.render("Time Taken: " + str(f"{remaining_time:03}"), True, WHITE)
+        elif current_room_no == 5:
+            if r == 0:
+             leaderboard = " "
+             timefinal = UpdateTime() 
+             timefinal = timefinal
+             r+=1
+            countdown_text = font.render("Time Taken: " + str(f"{timefinal:03}"), True, WHITE)
             screen.blit(countdown_text, [screen_width - 250, 20])
             background_image = pygame.image.load("home.jpeg")
             image_width, image_height = background_image.get_size()
@@ -884,7 +932,7 @@ def main():
          #elapsed_time = int(time() - start_time)
          #remaining_time = max( elapsed_time, 0)
          #countdown_text = font.render("Time Taken: " + str(f"{remaining_time:03}"), True, WHITE)
-         countdown_text = UpdateTime()
+         countdown_text = font.render("Time Taken: " + str(f"{UpdateTime():03}"), True, WHITE)
          screen.blit(countdown_text, [screen_width - 250, 20])
          background_image = pygame.image.load("background.jpg")
          image_width, image_height = background_image.get_size()
@@ -903,10 +951,33 @@ def main():
          # Calculate the position to center the image on the screen
          x = (screen_width - image_width) / 2
          y = (screen_height - image_height) / 2
+
+         if player2_freeze:
+             if a == 0:
+                 time_freeze = UpdateTime()
+                 a += 1
+                 while (UpdateTime() != (time_freeze+10)):
+                     player.changespeed(0, 0)
+             a = 0
+             player2_freeze = False
+
+
+         if player1_freeze:
+             if a == 0:
+                 time_freeze = UpdateTime()
+                 a += 1
+                 while (UpdateTime() != (time_freeze+5)):
+                     print (time_freeze)
+                     player.changespeed(0, 0)
+             a = 0
+             player1_freeze = False
+              
+
+
+
  
         # If the game state is "game_over", wait for the user to close the window
         if game_state == "game_over":
-
          while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -924,4 +995,3 @@ def main():
  
 if __name__ == "__main__":
     main()
-

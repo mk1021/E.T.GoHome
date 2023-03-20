@@ -37,6 +37,7 @@ pygame.display.set_icon(icon)
 
 start_time = 0
 time_offset = 0
+i = 0
 
 active = True
 
@@ -61,6 +62,7 @@ def UpdateTimeVal(value):
     return countdown_text
 
 
+#def Freeze():
 
     # Check if player collides with each circle and remove it if it does
 
@@ -106,38 +108,59 @@ class PowerUp(pygame.sprite.Sprite):
 
 def receive():
     # Wait for start signal from server
+    done = False
     twoplayer = False
-    while not twoplayer:
+    global data, player1_freeze, player2_freeze 
+    player1_freeze = False
+    player2_freeze = False
+    while not done:
             global full_ready, is_player1, is_player2, is_player1_ready, is_player2_ready 
-            global connected, ready_num, level_selected, start1, start2, current_level, player_num
-            global P1Score, P2Score, GameOver1, GameOver2
+            global connected, ready_num, player_num
             data = client_socket.recv(1024).decode()
-            print(data + "wrong")
-            if data == "fullready":
-                full_ready = True
-
-            if data == "start":
-                in_game = True
-                #connected = True
-
-            elif data.startswith("player"):
-                player_num = int(data.split()[1])
-                print(f"its{player_num}")
-                if player_num == 1:
-                    is_player1 = True
-                    #is_player2 = False 
-                    #client_socket.send("Ready 1")
-                    connected = True
-                    twoplayer = True
-                else:
-                    #is_player1 = False
-                    is_player2 = True
-                    #client_socket.send("Ready 2")
-                    connected = True
-                    twoplayer = True
+            print(data)
+            while not twoplayer:
+              if data.startswith("player"):
+                  player_num = int(data.split()[1])
+                  if player_num == 1:
+                      is_player1 = True
+                      #is_player2 = False 
+                      #client_socket.send("Ready 1")
+                      connected = True
+                      twoplayer = True
+                  else:
+                      #is_player1 = False
+                      is_player2 = True
+                      #client_socket.send("Ready 2")
+                      connected = True
+                      twoplayer = True
+    
+              elif data.startswith("player"):
+                  player_num = int(data.split()[1])
+                  if player_num == 1:
+                      is_player1 = True
+                      #is_player2 = False 
+                      #client_socket.send("Ready 1")
+                      connected = True
+                      twoplayer = True
+                  else:
+                      #is_player1 = False
+                      is_player2 = True
+                      #client_socket.send("Ready 2")
+                      connected = True
+                      twoplayer = True
+    
+            if data.startswith("Player1_Freeze"):
+                 if player_num == 1:
+                   print("im frozen 1")
+                   player1_freeze = True 
+            if data.startswith("Player2_Freeze"):
+                 if player_num == 2:
+                   print("im frozen 2")
+                   player2_freeze = True 
 
             elif data == "quit":
                 print("receive quit")
+                done = True
                 break
 
 
@@ -192,6 +215,8 @@ class Player(pygame.sprite.Sprite):
  
     def move(self, walls, addTime, freeze):
         """ Find a new position for the player """
+        global collide
+        collide = False 
         if self.change_x > 0:
             self.image = pygame.transform.scale(pygame.image.load(self.images['right']), (35, 35))
         elif self.change_x < 0:
@@ -239,20 +264,20 @@ class Player(pygame.sprite.Sprite):
                 print("player2 time")
 
         for block in freeze_hit_list:
-            print("freezecollided")
             # If we are moving right, set our right side to the left side of
             # the item we hit
-            if self.change_x > 0:
-                self.rect.right = block.rect.left
-                block.kill() 
-            else:
-                # Otherwise if we are moving left, do the opposite.
-                self.rect.left = block.rect.right
-                block.kill()
-            if player_num == 1:
+            block.kill()
+            if player_num == 2:
                 print("player1 freeze")
-            elif player_num == 2:
+                client_socket.send("Freeze1".encode())
+                collide = True
+            if player_num == 1:
                 print("player2 freeze")
+                client_socket.send("Freeze2".encode())
+                collide = True
+
+
+ 
 
         # Move up/down
         self.rect.y += self.change_y
@@ -286,25 +311,19 @@ class Player(pygame.sprite.Sprite):
 
 
         for block in freeze_hit_list:
-            print("freezecollided2")
-            # Reset our position based on the top/bottom of the object.
-            if self.change_y > 0:
-                self.rect.bottom = block.rect.top
-                block.kill()
-            else:
-                self.rect.top = block.rect.bottom
-                block.kill()
-            print (player_num)
-            if player_num == 1:
+            block.kill()
+            if player_num == 2:
                 print("player1 freeze")
-            elif player_num == 2:
+                client_socket.send("Freeze1".encode())
+                collide = True
+            if player_num == 1:
                 print("player2 freeze")
+                client_socket.send("Freeze2".encode())
+                collide = True
 
-        
-        
             
 
- 
+
 
 class Room(object):
     """ Base class for all rooms. """
@@ -372,6 +391,7 @@ class Room1(Room):
                 ]
         
         freeze = [[357, 490, 35, 35, "alien.png"],
+                  [357, 490, 35, 35, "alien.png"]
                 ]
         
         for item in addTime:
@@ -530,7 +550,12 @@ is_player2_ready = False
 
 def main():
     """ Main Program """
- 
+    global collide
+    collide = False 
+    global player2_freeze
+    player2_freeze = False 
+    global player1_freeze
+    player1_freeze = False 
     # Call this function so the Pygame library can initialize itself
     pygame.init()
  
@@ -582,14 +607,15 @@ def main():
 
     leaderboard_font = pygame.font.Font('freesansbold.ttf', 56)
     game_state = "playing"
-    mixer.init()
-    mixer.music.load('bensound-summer_mp3_music.mp3')
-    mixer.music.play() 
+    #mixer.init()
+    #mixer.music.load('bensound-summer_mp3_music.mp3')
+    #mixer.music.play() 
     i = 0
     x = 0
     y = 0
     r = 0
     q = 0
+    a = 0
     player2finished = False
     player1finished = False
 
@@ -891,10 +917,33 @@ def main():
          # Calculate the position to center the image on the screen
          x = (screen_width - image_width) / 2
          y = (screen_height - image_height) / 2
+
+         if player2_freeze:
+             if a == 0:
+                 time_freeze = UpdateTime()
+                 a += 1
+                 while (UpdateTime() != (time_freeze+10)):
+                     player.changespeed(0, 0)
+             a = 0
+             player2_freeze = False
+
+
+         if player1_freeze:
+             if a == 0:
+                 time_freeze = UpdateTime()
+                 a += 1
+                 while (UpdateTime() != (time_freeze+5)):
+                     print (time_freeze)
+                     player.changespeed(0, 0)
+             a = 0
+             player1_freeze = False
+              
+
+
+
  
         # If the game state is "game_over", wait for the user to close the window
         if game_state == "game_over":
-
          while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
