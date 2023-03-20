@@ -647,8 +647,6 @@ class Leaderboard(Room):
      def __init__(self):
         super().__init__()
 
-        font = pygame.font.SysFont(None, 24)
-        img = font.render('leaderboard', True, BLUE)
      
  
         walls = [[0, -100, 20, 250, WHITE],
@@ -667,9 +665,6 @@ class PlayerScores(Room):
      """This creates all the walls in room 3"""
      def __init__(self):
         super().__init__()
-
-        font = pygame.font.SysFont(None, 24)
-        img = font.render('leaderboard', True, BLUE)
      
  
         walls = [[0, -100, 20, 250, WHITE],
@@ -1088,7 +1083,7 @@ def main():
              if a == 0:
                  time_freeze = UpdateTime()
                  a += 1
-                 while (UpdateTime() < (time_freeze+10)):
+                 while (UpdateTime() < (time_freeze+3)):
                      player.changespeed(0, 0)
              a = 0
              player2_freeze = False
@@ -1098,7 +1093,7 @@ def main():
              if a == 0:
                  time_freeze = UpdateTime()
                  a += 1
-                 while (UpdateTime() < (time_freeze+5)):
+                 while (UpdateTime() < (time_freeze+3)):
                      print (time_freeze)
                      player.changespeed(0, 0)
              a = 0
