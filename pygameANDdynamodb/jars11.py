@@ -15,6 +15,7 @@ RED = (255, 0, 0)
 PURPLE = (255, 0, 255)
 VIOLET = (138,43,226)
 DEEP_PINK = (255, 20, 147)
+ORANGE = (255, 228, 181)
 font_size = 30
 
 
@@ -516,6 +517,59 @@ class Room4(Room):
             wall = Wall(item[0], item[1], item[2], item[3], item[4])
             self.wall_list.add(wall)
 
+class Room5(Room):
+    """This creates all the walls in room 5"""
+    def __init__(self):
+        super().__init__()
+        # Make the walls. (x_pos, y_pos, width, height)
+ 
+        # This is a list of walls. Each is in the form [x, y, width, height]
+        walls = [[0, -100, 20, 250, WHITE],
+                 [0, 400, 20, 250, WHITE],
+                 [780, -100, 20, 250, WHITE],
+                 [780, 400, 20, 250, WHITE],
+                 [20, 0, 760, 20, WHITE],
+                 [20, 580, 760, 20, WHITE],
+                 [100, 80, 680, 20, ORANGE],
+                 [100, 500, 680, 20, ORANGE],
+                 [100, 100, 20, 150, ORANGE],
+                 [100, 350, 20, 150, ORANGE],
+                 [220, 100, 20, 250, ORANGE],
+                 [330, 250, 20, 250, ORANGE],
+                 [440, 100, 20, 250, ORANGE],
+                 [550, 250, 20, 250, ORANGE],
+                 [660, 100, 20, 250, ORANGE],
+                ]
+            
+        addTime = [[220, 415, 20, 20, "icons8-add-time-32.png"],
+                   [330, 165, 20, 20, "icons8-add-time-32.png" ],
+                   [440, 415, 20, 20, "icons8-add-time-32.png" ],
+                   [550, 165, 20, 20, "icons8-add-time-32.png" ],
+                   [660, 415, 20, 20, "icons8-add-time-32.png" ],
+        
+        subTime = [[740, 40, 20, 20, "clock.png"],
+                  ]
+        
+        freeze = [[740, 540, 35, 35, "ufo.png"],
+                 ]
+
+        for item in addTime:
+            addTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.addTime_list.add(addTime)
+
+        for item in subTime:
+            subTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.subTime_list.add(subTime)
+
+        for item in freeze:
+            freeze = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.freeze_list.add(freeze)
+
+        # Loop through the list. Create the wall, add it to the list
+        for item in walls:
+            wall = Wall(item[0], item[1], item[2], item[3], item[4])
+            self.wall_list.add(wall)
+
 
 class Leaderboard(Room):
      """This creates all the walls in room 3"""
@@ -560,7 +614,7 @@ class PlayerScores(Room):
             self.wall_list.add(wall)
 
 
-class Room5(Room):
+class Room6(Room):
     """This creates all the walls in room 2"""
     def __init__(self):
         super().__init__()
@@ -622,13 +676,16 @@ def main():
     room = Room4()
     rooms.append(room)
 
+    room = Room5()
+    rooms.append(room)
+
     room = PlayerScores()
     rooms.append(room)
 
     room = Leaderboard()
     rooms.append(room)
 
-    room = Room5()
+    room = Room6()
     rooms.append(room)
  
     current_room_no = 0
@@ -766,11 +823,15 @@ def main():
                 current_room_no = 7
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
+            elif current_room_no == 7:
+                current_room_no = 8
+                current_room = rooms[current_room_no]
+                player.rect.x = 0
             else:
                 current_room_no = 0
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
-        if current_room_no == 7:
+        if current_room_no == 8:
                     game_state = "game_over"
  
         # --- Drawing ---
@@ -903,7 +964,7 @@ def main():
    
 
           # Get the dimensions of the image
-        elif current_room_no == 5:
+        elif current_room_no == 6:
             if r == 0:
              leaderboard = " "
              timefinal = UpdateTime() 
