@@ -956,7 +956,7 @@ def main():
              if a == 0:
                  time_freeze = UpdateTime()
                  a += 1
-                 while (UpdateTime() != (time_freeze+10)):
+                 while (UpdateTime() != (time_freeze+2)):
                      player.changespeed(0, 0)
              a = 0
              player2_freeze = False
@@ -966,7 +966,7 @@ def main():
              if a == 0:
                  time_freeze = UpdateTime()
                  a += 1
-                 while (UpdateTime() != (time_freeze+5)):
+                 while (UpdateTime() != (time_freeze+2)):
                      print (time_freeze)
                      player.changespeed(0, 0)
              a = 0
