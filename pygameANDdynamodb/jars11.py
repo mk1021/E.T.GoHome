@@ -947,8 +947,6 @@ def main():
              timef = timefinal
              timef = timef
              q+=1
-            print("in room")
-            print(player_num)
             
             #         >>------------- TCP settings ------------------<< 
       
