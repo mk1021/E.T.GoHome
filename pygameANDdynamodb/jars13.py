@@ -863,7 +863,7 @@ def main():
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
             elif current_room_no == 1:
-                current_room_no = 6
+                current_room_no = 2
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
             elif current_room_no == 2:
