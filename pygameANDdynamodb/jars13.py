@@ -170,18 +170,20 @@ def receive():
                 player1finished = True
 
             if data.startswith('Player2_Score: '):
+                print("hoi")
                 if player_num == 1:
                      print("2 score recieving")
                      print(data.split()[1])
                      player2_Scoreprint = (data.split()[1])
                      player2finished = True
 
-                if data.startswith('Player1_Score: '):
-                    if player_num == 2:
-                         print("1 score recieving")
-                         print("Player1 Score: " +(data.split()[1]))
-                         player1_Scoreprint = "Player1 Score: " +(data.split()[1])
-                         player1finished = True
+            if data.startswith('Player1_Score: '):
+                print("hoi2")
+                if player_num == 2:
+                     print("1 score recieving")
+                     print((data.split()[1]))
+                     player1_Scoreprint = (data.split()[1])
+                     player1finished = True
 
             elif data == "quit":
                 print("receive quit")
@@ -763,9 +765,9 @@ def main():
 
     leaderboard_font = pygame.font.Font('freesansbold.ttf', 56)
     game_state = "playing"
-    #mixer.init()
-    #mixer.music.load('bensound-summer_mp3_music.mp3')
-    #mixer.music.play() 
+    mixer.init()
+    mixer.music.load('bensound-summer_mp3_music.mp3')
+    mixer.music.play() 
     i = 0
     x = 0
     y = 0
@@ -773,6 +775,7 @@ def main():
     q = 0
     a = 0
     m = 0
+    w = 0
   
 
     # Start the receive data thread
@@ -866,7 +869,7 @@ def main():
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
             elif current_room_no == 1:
-                current_room_no = 6
+                current_room_no = 2
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
             elif current_room_no == 2:
@@ -955,8 +958,10 @@ def main():
                name = input("Enter your name: ")
                client_socket.send(("serverName"+"/"+str(f"{timef:03}")+"/"+name).encode())
                m = m + 1
-              client_socket.send(("Player1_Score: " + str(f"{timef:03}")).encode())
-  
+              if w == 0:
+                     client_socket.send(("Player1_Score: " + str(f"{timef:03}")).encode())
+                     w = w + 1 
+            
             
               score_text = font.render("Your Time : " + str(f"{timef:03}"), True, WHITE)
               screen.blit(score_text, [70, 200])
@@ -969,10 +974,9 @@ def main():
                      line = leaderboard_lines[i]
                      text = font.render(line, True, WHITE)
                      screen.blit(text, (70,300 + i * 25))
-            #     print(player2_Scoreprint)
-            #     scores =( "Player2 Score: " + player2_Scoreprint)
-            #     score_text = font.render(scores, True, WHITE)
-            #     screen.blit(score_text, [70, 240])  
+                 scores =( "Player2 Score: " + player2_Scoreprint)
+                 score_text = font.render(scores, True, WHITE)
+                 screen.blit(score_text, [70, 240])  
                  
                  
         
@@ -982,7 +986,9 @@ def main():
                name = input("Enter your name: ")
                client_socket.send(("serverName"+"/"+str(f"{timef:03}")+"/"+name).encode())
                m = m + 1
-              client_socket.send(("Player2_Score: " + str(f"{timef:03}")).encode())
+               if w == 0:
+                     client_socket.send(("Player2_Score: " + str(f"{timef:03}")).encode())
+                     w = w + 1 
 
 
               score_text = font.render("Your Time : " + str(f"{timef:03}"), True, WHITE)
@@ -995,10 +1001,9 @@ def main():
                     line = leaderboard_lines[i]
                     text = font.render(line, True, WHITE)
                     screen.blit(text, (70,300 + i * 25))
-            #    print(player1_Scoreprint)
-            #    scores =( "Player1 Score: " + player1_Scoreprint)
-            #    score_text = font.render(scores, True, WHITE)
-            #    screen.blit(score_text, [70, 240])  
+                scores =( "Player1 Score: " + player1_Scoreprint)
+                score_text = font.render(scores, True, WHITE)
+                screen.blit(score_text, [70, 240])  
 
 
             #print("out of loop")

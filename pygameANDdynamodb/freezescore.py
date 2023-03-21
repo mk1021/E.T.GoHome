@@ -58,7 +58,6 @@ def handle_client(conn,addr):
             if data == 'Quit':
              print ("hehe ")
              conn.close()
-             print ("hehe ")
              if conn in connected_clients:
 
                         connection_times.remove(connection_times[connected_clients.index(conn)])
@@ -72,15 +71,14 @@ def handle_client(conn,addr):
                         print(connection_times)                      
 
              break
-            elif data.startswith("Dummysend"):
-                player1_conn.send("Dummysend".encode())
-                player2_conn.send("Dummysend".encode())
             elif data.startswith("Player1_Score: "):
                 Player1_Score = int(data.split()[1])
+                print(data)
                 print((data.split()[1]))
                 player2_conn.send(("Player1_Score: " + str(data.split()[1])).encode())
             elif data.startswith('Player2_Score: '):
                 Player2_Score = int(data.split()[1])
+                print(data)
                 print((data.split()[1]))
                 player1_conn.send(("Player2_Score: " + str(data.split()[1])).encode())
                                   
