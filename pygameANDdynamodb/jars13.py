@@ -117,6 +117,8 @@ def receive():
     player2_freeze = False
     player2finished = False 
     player1finished = False 
+    player1_Scoreprint =  ""
+    player2_Scoreprint =  ""
     while not done:
             global full_ready, is_player1, is_player2, is_player1_ready, is_player2_ready 
             global connected, ready_num, player_num
@@ -162,7 +164,7 @@ def receive():
                    print("im frozen 2")
                    player2_freeze = True 
 
-            if data.startswith('Leaderboard:'):
+            if (data.startswith('Leaderboard:')):
                 leaderboard_score = data
                 player2finished = True
                 player1finished = True
@@ -176,7 +178,7 @@ def receive():
 
                 if data.startswith('Player1_Score: '):
                     if player_num == 2:
-                         print("2 score recieving")
+                         print("1 score recieving")
                          print("Player1 Score: " +(data.split()[1]))
                          player1_Scoreprint = "Player1 Score: " +(data.split()[1])
                          player1finished = True
@@ -708,7 +710,7 @@ def main():
     player1_freeze = False 
     # Call this function so the Pygame library can initialize itself
     pygame.init()
-    Scoreprint = 0
+    Scoreprint = ""
  
     # Create an 800x600 sized screen
     screen_width = 800
@@ -770,6 +772,7 @@ def main():
     r = 0
     q = 0
     a = 0
+    m = 0
   
 
     # Start the receive data thread
@@ -863,7 +866,7 @@ def main():
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
             elif current_room_no == 1:
-                current_room_no = 2
+                current_room_no = 6
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
             elif current_room_no == 2:
@@ -948,61 +951,55 @@ def main():
       
         #PLAYER 1====================================
             if player_num == 1:
-              if i == 0:
+              if m == 0:
                name = input("Enter your name: ")
                client_socket.send(("serverName"+"/"+str(f"{timef:03}")+"/"+name).encode())
-               i += 1
+               m = m + 1
+              client_socket.send(("Player1_Score: " + str(f"{timef:03}")).encode())
   
-             # client_socket.send(("Player1_Score: " + str(f"{timef:03}")).encode())
             
               score_text = font.render("Your Time : " + str(f"{timef:03}"), True, WHITE)
               screen.blit(score_text, [70, 200])
-              print (leaderboard_score)
               leaderboard_lines = leaderboard_score.split("\n")
 
 
               if player2finished: 
-                leaderboard_lines = leaderboard_score.split("\n")
-                print ("p2 finished")
-                for i in range(6):
-                    line = leaderboard_lines[i]
-                    text = font.render(line, True, WHITE)
-                    screen.blit(text, (70,300 + i * 25))
-         #       print(Scoreprint)
-         #       scores =( "Player2 Score: " + Scoreprint)
-         #       print("the other player finished")
-         #       score_text = font.render(scores, True, WHITE)
+                 leaderboard_lines = leaderboard_score.split("\n")
+                 for i in range(6):
+                     line = leaderboard_lines[i]
+                     text = font.render(line, True, WHITE)
+                     screen.blit(text, (70,300 + i * 25))
+            #     print(player2_Scoreprint)
+            #     scores =( "Player2 Score: " + player2_Scoreprint)
+            #     score_text = font.render(scores, True, WHITE)
+            #     screen.blit(score_text, [70, 240])  
                  
                  
         
         #PLAYER 2====================================
             if player_num == 2:
-              if i == 0:
+              if m == 0:
                name = input("Enter your name: ")
                client_socket.send(("serverName"+"/"+str(f"{timef:03}")+"/"+name).encode())
-               i += 1
+               m = m + 1
+              client_socket.send(("Player2_Score: " + str(f"{timef:03}")).encode())
 
-         
-              #client_socket.send(("Player2_Score: " + str(f"{timef:03}")).encode())
 
               score_text = font.render("Your Time : " + str(f"{timef:03}"), True, WHITE)
               screen.blit(score_text, [70, 200])
-              print (leaderboard_score)
               leaderboard_lines = leaderboard_score.split("\n")
 
 
               if player1finished: 
-               print ("p1 finished")
-               for i in range(6):
+                for i in range(6):
                     line = leaderboard_lines[i]
                     text = font.render(line, True, WHITE)
                     screen.blit(text, (70,300 + i * 25))
-           #    print(Scoreprint)
-           #    scores =( "Player2 Score: " + Scoreprint)
-           #    print("the other player finished")
-           #    score_text = font.render(scores, True, WHITE)
-           #    screen.blit(score_text, [70, 240])  
-               
+            #    print(player1_Scoreprint)
+            #    scores =( "Player1 Score: " + player1_Scoreprint)
+            #    score_text = font.render(scores, True, WHITE)
+            #    screen.blit(score_text, [70, 240])  
+
 
             #print("out of loop")
             
