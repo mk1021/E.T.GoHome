@@ -26,7 +26,7 @@ font_size = 30
 # Set up the TCP client socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #the server name and port client wishes to access
-server_name = '18.130.254.105'
+server_name = '13.41.226.211'
 server_port = 12000
 client_socket.connect((server_name, server_port))
 

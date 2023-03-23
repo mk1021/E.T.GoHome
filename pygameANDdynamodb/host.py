@@ -122,6 +122,13 @@ def handle_client(conn,addr):
                 print(data)
                 player1_conn.send(('Player1_Freeze').encode())
 
+            elif data.startswith("Reverse2"):
+                print(data)
+                player2_conn.send(('Player2_Reverse').encode())
+            elif data.startswith("Reverse1"):
+                print(data)
+                player1_conn.send(('Player1_Reverse').encode())
+
 
 
 while True:

@@ -26,7 +26,7 @@ font_size = 30
 # Set up the TCP client socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #the server name and port client wishes to access
-server_name = '18.130.254.105'
+server_name = '13.41.226.211'
 server_port = 12000
 client_socket.connect((server_name, server_port))
 
@@ -63,9 +63,6 @@ def UpdateTimeVal(value):
     return countdown_text
 
 
-#def Freeze():
-
-    # Check if player collides with each circle and remove it if it does
 
 
 
@@ -111,9 +108,16 @@ def receive():
     # Wait for start signal from server
     done = False
     twoplayer = False
-    global data, player1_freeze, player2_freeze 
+    global data, player1_freeze, player2_freeze , player2finished, player1finished, player1_Scoreprint, player2_Scoreprint,leaderboard_score, player1_reverse, player2_reverse
+    leaderboard_score = "0"
     player1_freeze = False
     player2_freeze = False
+    player1_reverse = False
+    player2_reverse = False
+    player2finished = False 
+    player1finished = False 
+    player1_Scoreprint =  ""
+    player2_Scoreprint =  ""
     while not done:
             global full_ready, is_player1, is_player2, is_player1_ready, is_player2_ready 
             global connected, ready_num, player_num
@@ -158,6 +162,36 @@ def receive():
                  if player_num == 2:
                    print("im frozen 2")
                    player2_freeze = True 
+
+            if data.startswith("Player1_Reverse"):
+                 if player_num == 1:
+                   print("im reversed 1")
+                   player1_reverse = True 
+            if data.startswith("Player2_Reverse"):
+                 if player_num == 2:
+                   print("im reversed 2")
+                   player2_reverse = True 
+
+            if (data.startswith('Leaderboard:')):
+                leaderboard_score = data
+                player2finished = True
+                player1finished = True
+
+            if data.startswith('Player2_Score: '):
+                print("hoi")
+                if player_num == 1:
+                     print("2 score recieving")
+                     print(data.split()[1])
+                     player2_Scoreprint = (data.split()[1])
+                     player2finished = True
+
+            if data.startswith('Player1_Score: '):
+                print("hoi2")
+                if player_num == 2:
+                     print("1 score recieving")
+                     print((data.split()[1]))
+                     player1_Scoreprint = (data.split()[1])
+                     player1finished = True
 
             elif data == "quit":
                 print("receive quit")
@@ -214,7 +248,7 @@ class Player(pygame.sprite.Sprite):
         self.change_x += x
         self.change_y += y
  
-    def move(self, walls, addTime, freeze, subTime):
+    def move(self, walls, addTime, freeze, subTime, reverse):
         """ Find a new position for the player """
         global collide
         collide = False 
@@ -235,6 +269,7 @@ class Player(pygame.sprite.Sprite):
         powerup_hit_list =  pygame.sprite.spritecollide(self, addTime, False)
         subtime_hit_list =  pygame.sprite.spritecollide(self, subTime, False)
         freeze_hit_list =  pygame.sprite.spritecollide(self, freeze, False)
+        reverse_hit_list =  pygame.sprite.spritecollide(self, reverse, False)
 
         for block in block_hit_list:
             # If we are moving right, set our right side to the left side of
@@ -249,15 +284,7 @@ class Player(pygame.sprite.Sprite):
 
         for block in powerup_hit_list:
             print("collided")
-            # If we are moving right, set our right side to the left side of
-            # the item we hit
-            if self.change_x > 0:
-                self.rect.right = block.rect.left
-                block.kill() 
-            else:
-                # Otherwise if we are moving left, do the opposite.
-                self.rect.left = block.rect.right
-                block.kill()
+            block.kill() 
             if player_num == 1:
                 UpdateTimeVal(5)
                 print("player1 time")
@@ -278,17 +305,24 @@ class Player(pygame.sprite.Sprite):
                 client_socket.send("Freeze2".encode())
                 collide = True
 
+        for block in reverse_hit_list:
+            # If we are moving right, set our right side to the left side of
+            # the item we hit
+            block.kill()
+            if player_num == 2:
+                print("player1 reverse")
+                client_socket.send("Reverse1".encode())
+                collide = True
+            if player_num == 1:
+                print("player2 reverse")
+                client_socket.send("Reverse2".encode())
+                collide = True
+
         for block in subtime_hit_list:
             print("collided")
             # If we are moving right, set our right side to the left side of
             # the item we hit
-            if self.change_x > 0:
-                self.rect.right = block.rect.left
-                block.kill() 
-            else:
-                # Otherwise if we are moving left, do the opposite.
-                self.rect.left = block.rect.right
-                block.kill()
+            block.kill() 
             if player_num == 1:
                 UpdateTimeVal(-5)
             elif player_num == 2:
@@ -311,12 +345,7 @@ class Player(pygame.sprite.Sprite):
         for block in powerup_hit_list:
             print("collided2")
             # Reset our position based on the top/bottom of the object.
-            if self.change_y > 0:
-                self.rect.bottom = block.rect.top
-                block.kill()
-            else:
-                self.rect.top = block.rect.bottom
-                block.kill()
+            block.kill()
             print (player_num)
             if player_num == 1:
                 UpdateTimeVal(5)
@@ -338,15 +367,20 @@ class Player(pygame.sprite.Sprite):
                 client_socket.send("Freeze2".encode())
                 collide = True
 
+        for block in reverse_hit_list:
+            block.kill()
+            if player_num == 2:
+                print("player1 reverse")
+                client_socket.send("Reverse1".encode())
+                collide = True
+            if player_num == 1:
+                print("player2 reverse")
+                client_socket.send("Reverse2".encode())
+                collide = True
+
         for block in powerup_hit_list:
             print("collided2")
-            # Reset our position based on the top/bottom of the object.
-            if self.change_y > 0:
-                self.rect.bottom = block.rect.top
-                block.kill()
-            else:
-                self.rect.top = block.rect.bottom
-                block.kill()
+            block.kill()
             print (player_num)
             if player_num == 1:
                 UpdateTimeVal(-5)
@@ -365,6 +399,7 @@ class Room(object):
     addTime_list = None
     subTime_list = None
     freeze_list = None
+    reverse_list = None
  
     def __init__(self):
         """ Constructor, create our lists. """
@@ -372,6 +407,7 @@ class Room(object):
         self.addTime_list = pygame.sprite.Group()
         self.subTime_list = pygame.sprite.Group()
         self.freeze_list = pygame.sprite.Group()
+        self.reverse_list = pygame.sprite.Group()
 
 class Start(Room):
     """This creates all the walls in room 3"""
@@ -424,6 +460,10 @@ class Room1(Room):
                   [555, 280, 40, 40, "ufo.png"],
                  ]
         
+        reverse = [[135, 230, 40, 40, "exchange.png"],
+                  [324, 280, 40, 40, "exchange.png"],
+                 ]
+        
         for item in addTime:
             addTime = PowerUp(item[0], item[1], item[2], item[3], item[4])
             self.addTime_list.add(addTime)
@@ -435,6 +475,10 @@ class Room1(Room):
         for item in freeze:
             freeze = PowerUp(item[0], item[1], item[2], item[3], item[4])
             self.freeze_list.add(freeze)
+
+        for item in reverse:
+            reverse = PowerUp(item[0], item[1], item[2], item[3], item[4])
+            self.reverse_list.add(reverse)
  
         # Loop through the list. Create the wall, add it to the list
         for item in walls:
@@ -703,14 +747,20 @@ is_player2_ready = False
 
 def main():
     """ Main Program """
-    global collide
+    global collide, player_num
+    player_num = 0
     collide = False 
     global player2_freeze
     player2_freeze = False 
     global player1_freeze
     player1_freeze = False 
+    global player2_reverse
+    player2_reverse = False 
+    global player1_reverse
+    player1_reverse = False
     # Call this function so the Pygame library can initialize itself
     pygame.init()
+    Scoreprint = ""
  
     # Create an 800x600 sized screen
     screen_width = 800
@@ -763,17 +813,18 @@ def main():
 
     leaderboard_font = pygame.font.Font('freesansbold.ttf', 56)
     game_state = "playing"
-    #mixer.init()
-    #mixer.music.load('bensound-summer_mp3_music.mp3')
-    #mixer.music.play() 
+    mixer.init()
+    mixer.music.load('bensound-summer_mp3_music.mp3')
+    mixer.music.play() 
     i = 0
     x = 0
     y = 0
     r = 0
     q = 0
     a = 0
-    player2finished = False
-    player1finished = False
+    m = 0
+    w = 0
+  
 
     # Start the receive data thread
     receive_thread = threading.Thread(target=receive)
@@ -821,30 +872,106 @@ def main():
                 client_socket.close()
                 pygame.quit()
                 quit()
- 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    player.changespeed(-5, 0)
-                if event.key == pygame.K_RIGHT:
-                    player.changespeed(5, 0)
-                if event.key == pygame.K_UP:
-                    player.changespeed(0, -5)
-                if event.key == pygame.K_DOWN:
-                    player.changespeed(0, 5)
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT:
-                    player.changespeed(5, 0)
-                if event.key == pygame.K_RIGHT:
-                    player.changespeed(-5, 0)
-                if event.key == pygame.K_UP:
-                    player.changespeed(0, 5)
-                if event.key == pygame.K_DOWN:
-                    player.changespeed(0, -5)
-                
 
-        # --- Game Logic ---
- 
-        player.move(current_room.wall_list,current_room.addTime_list, current_room.freeze_list, current_room.subTime_list)
+            if player_num == 2:
+                if (player2_reverse):
+                    if a == 0:
+                     time_reverse = UpdateTime()
+                     a += 1
+                    if (UpdateTime() > (time_reverse+2)):
+                        player1_reverse  = False
+                        a == 0
+                    print("in reverse")
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_LEFT:
+                            player.changespeed(5, 0)
+                        if event.key == pygame.K_RIGHT:
+                            player.changespeed(-5, 0)
+                        if event.key == pygame.K_UP:
+                            player.changespeed(0, -5)
+                        if event.key == pygame.K_DOWN:
+                            player.changespeed(0, 5)
+                    if event.type == pygame.KEYUP:
+                        if event.key == pygame.K_LEFT:
+                            player.changespeed(-5, 0)
+                        if event.key == pygame.K_RIGHT:
+                            player.changespeed(5, 0)
+                        if event.key == pygame.K_UP:
+                            player.changespeed(0, 5)
+                        if event.key == pygame.K_DOWN:
+                            player.changespeed(0, -5)
+                else:
+                    print("out reverse")
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_LEFT:
+                            player.changespeed(-5, 0)
+                        if event.key == pygame.K_RIGHT:
+                            player.changespeed(5, 0)
+                        if event.key == pygame.K_UP:
+                            player.changespeed(0, -5)
+                        if event.key == pygame.K_DOWN:
+                            player.changespeed(0, 5)
+                    if event.type == pygame.KEYUP:
+                        if event.key == pygame.K_LEFT:
+                            player.changespeed(5, 0)
+                        if event.key == pygame.K_RIGHT:
+                            player.changespeed(-5, 0)
+                        if event.key == pygame.K_UP:
+                            player.changespeed(0, 5)
+                        if event.key == pygame.K_DOWN:
+                            player.changespeed(0, -5)
+
+            if player_num == 1:
+                if (player1_reverse):
+                    if a == 0:
+                     time_reverse = UpdateTime()
+                     a += 1
+                    if (UpdateTime() > (time_reverse+2)):
+                        player1_reverse  = False
+                        a == 0
+                    print("in reverse")
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_LEFT:
+                            player.changespeed(5, 0)
+                        if event.key == pygame.K_RIGHT:
+                            player.changespeed(-5, 0)
+                        if event.key == pygame.K_UP:
+                            player.changespeed(0, -5)
+                        if event.key == pygame.K_DOWN:
+                            player.changespeed(0, 5)
+                    if event.type == pygame.KEYUP:
+                        if event.key == pygame.K_LEFT:
+                            player.changespeed(-5, 0)
+                        if event.key == pygame.K_RIGHT:
+                            player.changespeed(5, 0)
+                        if event.key == pygame.K_UP:
+                            player.changespeed(0, 5)
+                        if event.key == pygame.K_DOWN:
+                            player.changespeed(0, -5)
+                else:
+                    print("out reverse")
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_LEFT:
+                            player.changespeed(-5, 0)
+                        if event.key == pygame.K_RIGHT:
+                            player.changespeed(5, 0)
+                        if event.key == pygame.K_UP:
+                            player.changespeed(0, -5)
+                        if event.key == pygame.K_DOWN:
+                            player.changespeed(0, 5)
+                    if event.type == pygame.KEYUP:
+                        if event.key == pygame.K_LEFT:
+                            player.changespeed(5, 0)
+                        if event.key == pygame.K_RIGHT:
+                            player.changespeed(-5, 0)
+                        if event.key == pygame.K_UP:
+                            player.changespeed(0, 5)
+                        if event.key == pygame.K_DOWN:
+                            player.changespeed(0, -5)
+
+        # --    - Game Logic ---
+    
+        player.move(current_room.wall_list,current_room.addTime_list, current_room.freeze_list, current_room.subTime_list,current_room.reverse_list )
  
         if player.rect.x < -15:
             if current_room_no == 0:
@@ -866,11 +993,11 @@ def main():
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
             elif current_room_no == 1:
-                current_room_no = 2
+                current_room_no = 6
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
             elif current_room_no == 2:
-                current_room_no = 7
+                current_room_no = 3
                 current_room = rooms[current_room_no]
                 player.rect.x = 0
             elif current_room_no == 3:
@@ -907,6 +1034,7 @@ def main():
         current_room.addTime_list.draw(screen)
         current_room.subTime_list.draw(screen)
         current_room.freeze_list.draw(screen)
+        current_room.reverse_list.draw(screen)
 
         if current_room_no == 0:
          while not connected:
@@ -943,7 +1071,6 @@ def main():
             y = (screen_height - image_height) / 2
  
             if q == 0:
-             leaderboard = " "
              timef = timefinal
              timef = timef
              q+=1
@@ -952,77 +1079,70 @@ def main():
       
         #PLAYER 1====================================
             if player_num == 1:
-              if i == 0:
+              if m == 0:
                name = input("Enter your name: ")
                client_socket.send(("serverName"+"/"+str(f"{timef:03}")+"/"+name).encode())
-               leaderboard_str= client_socket.recv(1024).decode()
-               i += 1
-
-              if leaderboard_str.startswith('Leaderboard:'):
-                leaderboard = leaderboard_str
-                leaderboard_lines = leaderboard_str.split("\n")
-                print (leaderboard)
-
-         
-              client_socket.send(("Player1_Score: " + str(f"{timef:03}")).encode())
-              score = client_socket.recv(1024).decode()
-               
-              
-              if score.startswith('Player2_Score: '):
-                 print("Player2 Score: " +(score.split()[1]))
-                 Scoreprint = "Player2 Score: " +(score.split()[1])
-                 player2finished = True
-              
-      
+               m = m + 1
+              if w == 0:
+                     client_socket.send(("Player1_Score: " + str(f"{timef:03}")).encode())
+                     w = w + 1 
+            
+            
               score_text = font.render("Your Time : " + str(f"{timef:03}"), True, WHITE)
               screen.blit(score_text, [70, 200])
-              
+              leaderboard_lines = leaderboard_score.split("\n")
+
 
               if player2finished: 
-               for i in range(6):
-                    line = leaderboard_lines[i]
-                    text = font.render(line, True, WHITE)
-                    screen.blit(text, (70,300 + i * 25))
-               
-               score_text = font.render(Scoreprint, True, WHITE)
-               screen.blit(score_text, [70, 240])  
+                 leaderboard_lines = leaderboard_score.split("\n")
+                 for i in range(6):
+                     line = leaderboard_lines[i]
+                     text = font.render(line, True, WHITE)
+                     screen.blit(text, (70,300 + i * 25))
+                 scores =( "Player2 Score: " + player2_Scoreprint)
+                 score_text = font.render(scores, True, WHITE)
+                 screen.blit(score_text, [70, 240])  
+                 if (timef > int(player2_Scoreprint)):
+                     score_text = leaderboard_font.render("YOU WIN", True, WHITE)
+                     screen.blit(score_text, [400, 200]) 
+                 else:
+                    score_text = leaderboard_font.render("YOU LOSE :(", True, WHITE)
+                    screen.blit(score_text, [400, 200]) 
+                 
+                 
         
         #PLAYER 2====================================
             if player_num == 2:
-              if i == 0:
+              if m == 0:
                name = input("Enter your name: ")
                client_socket.send(("serverName"+"/"+str(f"{timef:03}")+"/"+name).encode())
-               leaderboard_str= client_socket.recv(1024).decode()
-               i += 1
+               m = m + 1
+               if w == 0:
+                     client_socket.send(("Player2_Score: " + str(f"{timef:03}")).encode())
+                     w = w + 1 
 
-              if leaderboard_str.startswith('Leaderboard:'):
-                leaderboard = leaderboard_str
-                leaderboard_lines = leaderboard_str.split("\n")
-                print (leaderboard)
-
-         
-              client_socket.send(("Player2_Score: " + str(f"{timef:03}")).encode())
-              score = client_socket.recv(1024).decode()
-               
-              
-              if score.startswith('Player1_Score: '):
-                 print("Player1 Score: " +(score.split()[1]))
-                 Scoreprint = "Player1 Score: " +(score.split()[1])
-                 player1finished = True
-              
 
               score_text = font.render("Your Time : " + str(f"{timef:03}"), True, WHITE)
               screen.blit(score_text, [70, 200])
-              
+              leaderboard_lines = leaderboard_score.split("\n")
+
 
               if player1finished: 
-               for i in range(6):
+                for i in range(6):
                     line = leaderboard_lines[i]
                     text = font.render(line, True, WHITE)
                     screen.blit(text, (70,300 + i * 25))
-               
-               score_text = font.render(Scoreprint, True, WHITE)
-               screen.blit(score_text, [70, 240])  
+                scores =( "Player1 Score: " + player1_Scoreprint)
+                score_text = font.render(scores, True, WHITE)
+                screen.blit(score_text, [70, 240])  
+                if (timef > int(player1_Scoreprint)):
+                     score_text = leaderboard_font.render("YOU WIN", True, WHITE)
+                     screen.blit(score_text, [400, 200]) 
+                else:
+                    score_text = leaderboard_font.render("YOU LOSE :(", True, WHITE)
+                    screen.blit(score_text, [400, 200]) 
+
+
             #print("out of loop")
             
    
@@ -1096,9 +1216,8 @@ def main():
                      player.changespeed(0, 0)
              a = 0
              player1_freeze = False
-              
 
-
+        
 
  
         # If the game state is "game_over", wait for the user to close the window
