@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pinplan
+ variation_name="fir_compiler_ii_0"
+ megafunction_name="ALTERA_FIR_COMPILER_II"
+ intended_family="MAX 10"
+ specifies="all_ports">
+ <global>
+  <pin name="clk" direction="input" scope="external" />
+  <pin name="reset_n" direction="input" scope="external" />
+  <pin name="ast_sink_data[79..0]" direction="input" scope="external" />
+  <pin name="ast_sink_valid" direction="input" scope="external" />
+  <pin name="ast_sink_error[1..0]" direction="input" scope="external" />
+  <pin name="ast_source_data[219..0]" direction="output" scope="external" />
+  <pin name="ast_source_valid" direction="output" scope="external" />
+  <pin name="ast_source_error[1..0]" direction="output" scope="external" />
+  <pin name="coeff_in_clk" direction="input" scope="external" />
+  <pin name="coeff_in_areset" direction="input" scope="external" />
+  <pin name="coeff_in_address[5..0]" direction="input" scope="external" />
+  <pin name="coeff_in_read" direction="input" scope="external" />
+  <pin name="coeff_out_valid" direction="output" scope="external" />
+  <pin name="coeff_out_data[15..0]" direction="output" scope="external" />
+  <pin name="coeff_in_we" direction="input" scope="external" />
+  <pin name="coeff_in_data[15..0]" direction="input" scope="external" />
+ </global>
+</pinplan>
