@@ -1,4 +1,3 @@
-# HelloJeff
+# E.T. GoHome Game Folder
 
-# Hello Jeff is a maze game, where you have to get through each maze while you're being timed
-# Your score will appear in the leaderboard if you are a one of the 10 fastest players
+Within this zip folder contains all the code we used, the final report and an additional video showcasing our game. 
