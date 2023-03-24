@@ -1,0 +1,28 @@
+# # File gsaved with Nlview version 6.3.8  2013-12-19 bk=1.2992 VDI=34 GEI=35
+# 
+preplace inst nios_accelerometer.sysid_qsys_0 -pg 1 -lvl 3 -y 850
+preplace inst nios_accelerometer.accelerometer_spi -pg 1 -lvl 3 -y 30
+preplace inst nios_accelerometer.cpu.cpu -pg 1
+preplace inst nios_accelerometer.cpu.clock_bridge -pg 1
+preplace inst nios_accelerometer.onchip_memory -pg 1 -lvl 3 -y 770
+preplace inst nios_accelerometer.cpu -pg 1 -lvl 2 -y 340
+preplace inst nios_accelerometer.clk -pg 1 -lvl 1 -y 450
+preplace inst nios_accelerometer.HEX0 -pg 1 -lvl 1 -y 790
+preplace inst nios_accelerometer.HEX1 -pg 1 -lvl 3 -y 150
+preplace inst nios_accelerometer.cpu.reset_bridge -pg 1
+preplace inst nios_accelerometer.jtag_uart -pg 1 -lvl 3 -y 250
+preplace inst nios_accelerometer.led -pg 1 -lvl 3 -y 470
+preplace inst nios_accelerometer.timer -pg 1 -lvl 3 -y 350
+preplace inst nios_accelerometer -pg 1 -lvl 1 -y 40 -regy -20
+preplace netloc EXPORT<net_container>nios_accelerometer</net_container>(SLAVE)nios_accelerometer.hex1_external_connection,(SLAVE)HEX1.external_connection) 1 0 3 NJ 180 NJ 180 NJ
+preplace netloc EXPORT<net_container>nios_accelerometer</net_container>(SLAVE)nios_accelerometer.hex0_external_connection,(SLAVE)HEX0.external_connection) 1 0 1 NJ
+preplace netloc EXPORT<net_container>nios_accelerometer</net_container>(SLAVE)nios_accelerometer.accelerometer_spi_external_interface,(SLAVE)accelerometer_spi.external_interface) 1 0 3 NJ 80 NJ 80 NJ
+preplace netloc FAN_OUT<net_container>nios_accelerometer</net_container>(SLAVE)HEX1.reset,(SLAVE)HEX0.reset,(SLAVE)sysid_qsys_0.reset,(MASTER)clk.clk_reset,(SLAVE)cpu.reset,(SLAVE)jtag_uart.reset,(SLAVE)timer.reset,(SLAVE)accelerometer_spi.reset,(SLAVE)led.reset,(SLAVE)onchip_memory.reset1) 1 0 3 270 440 510 500 950
+preplace netloc EXPORT<net_container>nios_accelerometer</net_container>(SLAVE)nios_accelerometer.reset,(SLAVE)clk.clk_in_reset) 1 0 1 NJ
+preplace netloc EXPORT<net_container>nios_accelerometer</net_container>(SLAVE)led.external_connection,(SLAVE)nios_accelerometer.led_external_connection) 1 0 3 NJ 570 NJ 570 NJ
+preplace netloc EXPORT<net_container>nios_accelerometer</net_container>(SLAVE)nios_accelerometer.clk,(SLAVE)clk.clk_in) 1 0 1 NJ
+preplace netloc FAN_OUT<net_container>nios_accelerometer</net_container>(MASTER)cpu.irq,(SLAVE)timer.irq,(SLAVE)jtag_uart.irq,(SLAVE)accelerometer_spi.interrupt) 1 2 1 910
+preplace netloc FAN_OUT<net_container>nios_accelerometer</net_container>(SLAVE)sysid_qsys_0.clk,(SLAVE)accelerometer_spi.clk,(SLAVE)HEX1.clk,(SLAVE)jtag_uart.clk,(SLAVE)timer.clk,(SLAVE)led.clk,(SLAVE)HEX0.clk,(SLAVE)onchip_memory.clk1,(MASTER)clk.clk,(SLAVE)cpu.clk) 1 0 3 250 400 470 480 930
+preplace netloc INTERCONNECT<net_container>nios_accelerometer</net_container>(MASTER)cpu.instruction_master,(SLAVE)accelerometer_spi.avalon_accelerometer_spi_mode_slave,(SLAVE)HEX0.s1,(SLAVE)onchip_memory.s1,(SLAVE)HEX1.s1,(SLAVE)cpu.debug_mem_slave,(MASTER)cpu.data_master,(SLAVE)jtag_uart.avalon_jtag_slave,(SLAVE)sysid_qsys_0.control_slave,(SLAVE)led.s1,(SLAVE)timer.s1) 1 0 3 230 420 490 520 890
+levelinfo -pg 1 0 200 1310
+levelinfo -hier nios_accelerometer 210 300 650 1050 1300
